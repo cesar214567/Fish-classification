@@ -9,12 +9,7 @@ import pandas as pd
 import time
 import warnings
 #warnings.filterwarnings("ignore")
-
 from sklearn.model_selection import KFold
-from keras.models import Sequential
-from keras.layers.core import Dense, Dropout, Flatten
-from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
-from keras.optimizers import SGD
 from keras.callbacks import EarlyStopping
 from keras.utils import np_utils
 from sklearn.metrics import log_loss
@@ -27,17 +22,17 @@ import torchvision.models as models
 from PIL import Image                                 
 import torchvision.transforms.functional as TF        
 from torchsummary import summary                       
-from torchviz import make_dot                         
 import numpy as np
+import torch.nn as nn
+import torch.optim as optim
 
-from torchvision.transforms import transforms
 
 print(torch.version.cuda)
 print(torch.cuda.is_available())
-print(torch.cuda.get_device_name(0))
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')                                                      
 
 print("device is: ",device)
+torch.autograd.set_detect_anomaly(True)
 
 def get_im_cv2(path):
     img = cv2.imread(path)
@@ -146,7 +141,24 @@ def merge_several_folds_mean(data, nfolds):
 
 
 def create_model(): 
-    model = torch.hub.load('pytorch/vision:v0.10.0', 'vgg19', pretrained=True).to(device)
+    model = models.vgg19(pretrained=True).to(device)
+    layers = [4096,1024,256,64,8]
+    classifiers = [model.classifier[0]]
+    for i in range(len(layers)-1):
+        classifiers.append(nn.ReLU())
+        classifiers.append(nn.Dropout(p=0.5))
+        classifiers.append(nn.Linear(layers[i],layers[i+1]))
+    classifiers.append(nn.Softmax())
+    model.classifier = nn.Sequential(*classifiers)
+    module = 0
+    for layer in model.children():
+        for param in layer.parameters():
+            if module == 0:
+                param.requires_grad = False
+            else:
+                param.requires_grad = True
+        module+=1  
+    print(model.classifier)
     summary(model, (3, 224, 224)) 
     return model
 
@@ -173,25 +185,41 @@ def run_cross_validation_create_models(nfolds=10):
     models = []
     for train_index, test_index in kf.split(train_data):
         model = create_model()
-        X_train = train_data[train_index]
-        Y_train = train_target[train_index]
+        #X_train = train_data[train_index]
+        #Y_train = train_target[train_index]
         X_valid = train_data[test_index]
         Y_valid = train_target[test_index]
+        loss_fn = nn.CrossEntropyLoss()
+        optimizer = optim.Adam(model.parameters())
 
         num_fold += 1
         print('Start KFold number {} from {}'.format(num_fold, nfolds))
-        print('Split train: ', len(X_train), len(Y_train))
+        print('Split train: ', len(train_index), len(train_index))
         print('Split valid: ', len(X_valid), len(Y_valid))
 
-        callbacks = [
-            EarlyStopping(monitor='val_loss', patience=3, verbose=0),
-        ]
-        
-        X_valid = torch.tensor(X_valid)
-        print(type(X_valid))
-        print(X_valid.shape)
+        #callbacks = [
+        #    EarlyStopping(monitor='val_loss', patience=3, verbose=0),
+        #]
+        train_loader = torch.utils.data.DataLoader(train_index,batch_size=32,shuffle=True,num_workers=2)
+        num_epoch = 2
+        for epoch in range(1,num_epoch+1):
+    
+            for train_batch_indexes in train_loader:
+                X_train = torch.tensor(train_data[train_batch_indexes])
+                Y_train = torch.argmax(torch.tensor(train_target[train_batch_indexes]),dim=1)
+                optimizer.zero_grad()
+                predict = model(X_train)
+                print(predict)
+                print(predict.shape)
+                print(Y_train.shape)
+                print(Y_train)
+                loss = loss_fn(predict,Y_train)
+                loss.backward()
+                optimizer.step()
+
+        X_valid = torch.tensor(X_valid[0:30])
         predictions_valid = model(X_valid)
-        score = log_loss(Y_valid, predictions_valid)
+        score = log_loss(Y_valid[0:30], predictions_valid.detach().numpy())
         print('Score log_loss: ', score)
         sum_score += score*len(test_index)
 

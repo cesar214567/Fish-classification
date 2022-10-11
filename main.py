@@ -32,7 +32,6 @@ print(torch.cuda.is_available())
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')                                                      
 
 print("device is: ",device)
-torch.autograd.set_detect_anomaly(True)
 
 def get_im_cv2(path):
     img = cv2.imread(path)
@@ -146,6 +145,7 @@ def create_model():
     classifiers = [model.classifier[0]]
     for i in range(len(layers)-1):
         classifiers.append(nn.ReLU())
+        classifiers.append(nn.BatchNorm1d(layers[i]))
         classifiers.append(nn.Dropout(p=0.5))
         classifiers.append(nn.Linear(layers[i],layers[i+1]))
     classifiers.append(nn.Softmax())
@@ -209,11 +209,10 @@ def run_cross_validation_create_models(nfolds=10):
                 Y_train = torch.argmax(torch.tensor(train_target[train_batch_indexes]),dim=1)
                 optimizer.zero_grad()
                 predict = model(X_train)
-                print(predict)
-                print(predict.shape)
-                print(Y_train.shape)
-                print(Y_train)
+                #print(predict)
+                #print(Y_train)
                 loss = loss_fn(predict,Y_train)
+                print(loss)
                 loss.backward()
                 optimizer.step()
 

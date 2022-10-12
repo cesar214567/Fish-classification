@@ -172,8 +172,8 @@ def get_validation_predictions(train_data, predictions_valid):
 
 def run_cross_validation_create_models(nfolds=10):
     # input image dimensions
-    batch_size = 16
-    nb_epoch = 30
+    batch_size = 32
+    num_epoch = 5
     random_state = 51
 
     train_data, train_target, train_id = read_and_normalize_train_data()
@@ -181,8 +181,8 @@ def run_cross_validation_create_models(nfolds=10):
     yfull_train = dict()
     kf = KFold(n_splits=nfolds, shuffle=True, random_state=random_state)
     num_fold = 0
-    sum_score = 0
-    models = []
+    best_model = 0
+    best_model_error = 1000
     for train_index, test_index in kf.split(train_data):
         model = create_model()
         #X_train = train_data[train_index]
@@ -197,12 +197,8 @@ def run_cross_validation_create_models(nfolds=10):
         print('Split train: ', len(train_index), len(train_index))
         print('Split valid: ', len(X_valid), len(Y_valid))
 
-        #callbacks = [
-        #    EarlyStopping(monitor='val_loss', patience=3, verbose=0),
-        #]
-        num_epoch = 5
         for epoch in range(1,num_epoch+1):
-            train_loader = torch.utils.data.DataLoader(train_index,batch_size=32,shuffle=True,num_workers=8)
+            train_loader = torch.utils.data.DataLoader(train_index,batch_size=batch_size,shuffle=True,num_workers=8)
             print(epoch)
             batch = 0
             for train_batch_indexes in train_loader:
@@ -211,15 +207,12 @@ def run_cross_validation_create_models(nfolds=10):
                 Y_train = torch.argmax(torch.tensor(train_target[train_batch_indexes]),dim=1)
                 optimizer.zero_grad()
                 predict = model(X_train)
-                #print(torch.argmax(predict,dim=1))
-                #print(Y_train)
                 loss = loss_fn(predict,Y_train)
-                #print(loss)
                 loss.backward()
                 optimizer.step()
                 batch= batch + 1
 
-        test_loader = torch.utils.data.DataLoader(X_valid,batch_size=32,shuffle=False,num_workers=8)
+        test_loader = torch.utils.data.DataLoader(X_valid,batch_size=batch_size,shuffle=False,num_workers=8)
         predictions = []
         for test_batch in test_loader:
             X_valid = torch.tensor(test_batch)
@@ -228,23 +221,22 @@ def run_cross_validation_create_models(nfolds=10):
                 predictions = predictions_valid
             else:
                 predictions = torch.concat((predictions,predictions_valid))
-        print(predictions)
         
-        #score = log_loss(Y_valid, predictions_valid.detach().numpy())
-        #print('Score log_loss: ', score)
-        #sum_score += score*len(test_index)
         Y_valid = torch.argmax(torch.tensor(Y_valid),dim=1)
-        predictions = torch.argmax(predictions,dim=1)
-        print(Y_valid.shape)
-        print(predictions.shape)
-        print(confusion_matrix(Y_valid,predictions))
-        models.append(model)
+        predictions_labels = torch.argmax(predictions,dim=1)
+        conf_matrix = confusion_matrix(Y_valid,predictions_labels)
+        print(conf_matrix)
+        print("aciertos: ",np.trace(conf_matrix))
+        print("fallas: ",np.sum(conf_matrix))
+        current_model_error = loss_fn(predictions,Y_valid) 
+        if (current_model_error < best_model_error):
+            best_model_error = current_model_error
+            best_model = model
+    
 
-    score = sum_score/len(train_data)
-    print("Log_loss train independent avg: ", score)
-
-    info_string = 'loss_' + str(score) + '_folds_' + str(nfolds) + '_ep_' + str(nb_epoch)
-    return info_string, models
+    info_string = 'loss_' + str(best_model_error) + '_folds_' + str(nfolds)
+    print(info_string)
+    return info_string, model
 
 
 def run_cross_validation_process_test(info_string, models):
@@ -271,5 +263,5 @@ def run_cross_validation_process_test(info_string, models):
 if __name__ == '__main__':
     print('Keras version: {}'.format(keras_version))
     num_folds = 3
-    info_string, models = run_cross_validation_create_models(num_folds)
-    run_cross_validation_process_test(info_string, models)
+    info_string, model = run_cross_validation_create_models(num_folds)
+    #run_cross_validation_process_test(info_string, models)

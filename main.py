@@ -12,7 +12,7 @@ import warnings
 from sklearn.model_selection import KFold
 from keras.callbacks import EarlyStopping
 from keras.utils import np_utils
-from sklearn.metrics import log_loss
+from sklearn.metrics import confusion_matrix, log_loss
 from keras import __version__ as keras_version
 
 import tensorflow as tf
@@ -30,7 +30,7 @@ import torch.optim as optim
 print(torch.version.cuda)
 print(torch.cuda.is_available())
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')                                                      
-
+columns=['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
 print("device is: ",device)
 
 def get_im_cv2(path):
@@ -200,32 +200,44 @@ def run_cross_validation_create_models(nfolds=10):
         #callbacks = [
         #    EarlyStopping(monitor='val_loss', patience=3, verbose=0),
         #]
-        train_loader = torch.utils.data.DataLoader(train_index,batch_size=32,shuffle=True,num_workers=2)
-        num_epoch = 2
+        num_epoch = 5
         for epoch in range(1,num_epoch+1):
-    
+            train_loader = torch.utils.data.DataLoader(train_index,batch_size=32,shuffle=True,num_workers=8)
+            print(epoch)
+            batch = 0
             for train_batch_indexes in train_loader:
+                print("batch: ", batch)
                 X_train = torch.tensor(train_data[train_batch_indexes])
                 Y_train = torch.argmax(torch.tensor(train_target[train_batch_indexes]),dim=1)
                 optimizer.zero_grad()
                 predict = model(X_train)
-                #print(predict)
+                #print(torch.argmax(predict,dim=1))
                 #print(Y_train)
                 loss = loss_fn(predict,Y_train)
-                print(loss)
+                #print(loss)
                 loss.backward()
                 optimizer.step()
+                batch= batch + 1
 
-        X_valid = torch.tensor(X_valid[0:30])
-        predictions_valid = model(X_valid)
-        score = log_loss(Y_valid[0:30], predictions_valid.detach().numpy())
-        print('Score log_loss: ', score)
-        sum_score += score*len(test_index)
-
-        # Store valid predictions
-        for i in range(len(test_index)):
-            yfull_train[test_index[i]] = predictions_valid[i]
-
+        test_loader = torch.utils.data.DataLoader(X_valid,batch_size=32,shuffle=False,num_workers=8)
+        predictions = []
+        for test_batch in test_loader:
+            X_valid = torch.tensor(test_batch)
+            predictions_valid = model(X_valid)
+            if len(predictions) == 0:
+                predictions = predictions_valid
+            else:
+                predictions = torch.concat((predictions,predictions_valid))
+        print(predictions)
+        
+        #score = log_loss(Y_valid, predictions_valid.detach().numpy())
+        #print('Score log_loss: ', score)
+        #sum_score += score*len(test_index)
+        Y_valid = torch.argmax(torch.tensor(Y_valid),dim=1)
+        predictions = torch.argmax(predictions,dim=1)
+        print(Y_valid.shape)
+        print(predictions.shape)
+        print(confusion_matrix(Y_valid,predictions))
         models.append(model)
 
     score = sum_score/len(train_data)

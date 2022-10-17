@@ -50,7 +50,7 @@ def load_train():
     for fld in folders:
         index = folders.index(fld)
         print('Load folder {} (Index: {})'.format(fld, index))
-        path = os.path.join('.','NatureConservancy', 'train', fld, '*.jpg')
+        path = os.path.join('.','drive','MyDrive','Fish-classification','NatureConservancy', 'train', fld, '*.jpg')
         print(path)
         files = glob.glob(path)
         for fl in files:
@@ -65,7 +65,7 @@ def load_train():
 
 
 def load_test():
-    path = os.path.join('.','NatureConservancy',  'test_stg1', '*.jpg')
+    path = os.path.join('.','drive','MyDrive','Fish-classification','NatureConservancy',  'test_stg1', '*.jpg')
     files = sorted(glob.glob(path))
 
     X_test = []
@@ -93,7 +93,6 @@ def read_and_normalize_train_data():
     print('Convert to numpy...')
     train_data = np.array(train_data, dtype=np.uint8)
     train_target = np.array(train_target, dtype=np.uint8)
-
     print('Reshape...')
     train_data = train_data.transpose((0, 3, 1, 2))
 
@@ -142,25 +141,24 @@ def merge_several_folds_mean(data, nfolds):
 def create_model(): 
     model = models.vgg19(pretrained=True).to(device)
     layers = [4096,1024,256,64,8]
-    classifiers = [model.classifier[0]]
+    classifiers = [model.classifier[0].to(device)]
     for i in range(len(layers)-1):
-        classifiers.append(nn.ReLU())
-        classifiers.append(nn.BatchNorm1d(layers[i]))
-        classifiers.append(nn.Dropout(p=0.5))
-        classifiers.append(nn.Linear(layers[i],layers[i+1]))
-    classifiers.append(nn.Softmax())
-    model.classifier = nn.Sequential(*classifiers)
+        classifiers.append(nn.ReLU().to(device))
+        classifiers.append(nn.BatchNorm1d(layers[i]).to(device))
+        classifiers.append(nn.Dropout(p=0.5).to(device))
+        classifiers.append(nn.Linear(layers[i],layers[i+1]).to(device))
+    classifiers.append(nn.Softmax().to(device))
+    model.classifier = nn.Sequential(*classifiers).to(device)
     module = 0
     for layer in model.children():
         for param in layer.parameters():
             if module == 0:
-                param.requires_grad = False
+                param.requires_grad = True
             else:
                 param.requires_grad = True
         module+=1  
-    print(model.classifier)
     summary(model, (3, 224, 224)) 
-    return model
+    return model.to(device)
 
 
 def get_validation_predictions(train_data, predictions_valid):
@@ -173,7 +171,7 @@ def get_validation_predictions(train_data, predictions_valid):
 def run_cross_validation_create_models(nfolds=10):
     # input image dimensions
     batch_size = 32
-    num_epoch = 5
+    num_epoch = 40
     random_state = 51
 
     train_data, train_target, train_id = read_and_normalize_train_data()
@@ -189,7 +187,7 @@ def run_cross_validation_create_models(nfolds=10):
         #Y_train = train_target[train_index]
         X_valid = train_data[test_index]
         Y_valid = train_target[test_index]
-        loss_fn = nn.CrossEntropyLoss()
+        loss_fn = nn.CrossEntropyLoss().to(device)
         optimizer = optim.Adam(model.parameters())
 
         num_fold += 1
@@ -198,33 +196,32 @@ def run_cross_validation_create_models(nfolds=10):
         print('Split valid: ', len(X_valid), len(Y_valid))
 
         for epoch in range(1,num_epoch+1):
-            train_loader = torch.utils.data.DataLoader(train_index,batch_size=batch_size,shuffle=True,num_workers=8)
-            print(epoch)
+            train_loader = torch.utils.data.DataLoader(train_index,batch_size=batch_size,shuffle=True,num_workers=2)
+            print("epoch: ",epoch)
             batch = 0
             for train_batch_indexes in train_loader:
-                print("batch: ", batch)
-                X_train = torch.tensor(train_data[train_batch_indexes])
-                Y_train = torch.argmax(torch.tensor(train_target[train_batch_indexes]),dim=1)
+                X_train = torch.tensor(train_data[train_batch_indexes]).to(device)
+                Y_train = torch.argmax(torch.tensor(train_target[train_batch_indexes]),dim=1).to(device)
                 optimizer.zero_grad()
-                predict = model(X_train)
-                loss = loss_fn(predict,Y_train)
+                predict = model(X_train).to(device)
+                loss = loss_fn(predict,Y_train).to(device)
                 loss.backward()
                 optimizer.step()
                 batch= batch + 1
 
-        test_loader = torch.utils.data.DataLoader(X_valid,batch_size=batch_size,shuffle=False,num_workers=8)
+        test_loader = torch.utils.data.DataLoader(X_valid,batch_size=batch_size,shuffle=False,num_workers=2)
         predictions = []
         for test_batch in test_loader:
-            X_valid = torch.tensor(test_batch)
-            predictions_valid = model(X_valid)
+            X_valid = torch.tensor(test_batch).to(device)
+            predictions_valid = model(X_valid).to(device)
             if len(predictions) == 0:
                 predictions = predictions_valid
             else:
-                predictions = torch.concat((predictions,predictions_valid))
+                predictions = torch.concat((predictions,predictions_valid)).to(device)
         
-        Y_valid = torch.argmax(torch.tensor(Y_valid),dim=1)
-        predictions_labels = torch.argmax(predictions,dim=1)
-        conf_matrix = confusion_matrix(Y_valid,predictions_labels)
+        Y_valid = torch.argmax(torch.tensor(Y_valid),dim=1).to(device)
+        predictions_labels = torch.argmax(predictions,dim=1).to(device)
+        conf_matrix = confusion_matrix(Y_valid.cpu(),predictions_labels.cpu())
         print(conf_matrix)
         print("aciertos: ",np.trace(conf_matrix))
         print("fallas: ",np.sum(conf_matrix))

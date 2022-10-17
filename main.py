@@ -50,7 +50,7 @@ def load_train():
     for fld in folders:
         index = folders.index(fld)
         print('Load folder {} (Index: {})'.format(fld, index))
-        path = os.path.join('.','drive','MyDrive','Fish-classification','NatureConservancy', 'train', fld, '*.jpg')
+        path = os.path.join('.','NatureConservancy', 'train', fld, '*.jpg')
         print(path)
         files = glob.glob(path)
         for fl in files:
@@ -65,7 +65,7 @@ def load_train():
 
 
 def load_test():
-    path = os.path.join('.','drive','MyDrive','Fish-classification','NatureConservancy',  'test_stg1', '*.jpg')
+    path = os.path.join('.','NatureConservancy',  'test_stg1', '*.jpg')
     files = sorted(glob.glob(path))
 
     X_test = []

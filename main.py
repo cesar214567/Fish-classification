@@ -8,7 +8,7 @@ import datetime
 import pandas as pd
 import time
 import warnings
-#warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore")
 from sklearn.model_selection import KFold
 from keras.callbacks import EarlyStopping
 from keras.utils import np_utils
@@ -26,13 +26,14 @@ import numpy as np
 import torch.nn as nn
 import torch.optim as optim
 
+import nvidia_smi
 
 print(torch.version.cuda)
 print(torch.cuda.is_available())
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')                                                      
 columns=['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
 print("device is: ",device)
-
+#torch.cuda.set_per_process_memory_fraction(1.0, device=None) 
 def get_im_cv2(path):
     img = cv2.imread(path)
     resized = cv2.resize(img, (244, 244), cv2.INTER_LINEAR)
@@ -139,26 +140,44 @@ def merge_several_folds_mean(data, nfolds):
 
 
 def create_model(): 
-    model = models.vgg19(pretrained=True).to(device)
-    layers = [4096,1024,256,64,8]
-    classifiers = [model.classifier[0].to(device)]
+    model = models.vgg19(pretrained=True)
+    #layers = [25088,2048,512,64,8]
+    layers = [4096,1024,8]
+    classifiers = [model.classifier[0]] 
+    nvidia_smi.nvmlInit()
+    handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
+    # card id 0 hardcoded here, there is also a call to get all available card ids, so we could iterate
+    info = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
+    print("Total memory:", info.total)
+    print("Free memory:", info.free)
+    print("Used memory:", info.used)
+    #classifiers = [model.classifier[0]] 
     for i in range(len(layers)-1):
-        classifiers.append(nn.ReLU().to(device))
-        classifiers.append(nn.BatchNorm1d(layers[i]).to(device))
-        classifiers.append(nn.Dropout(p=0.5).to(device))
-        classifiers.append(nn.Linear(layers[i],layers[i+1]).to(device))
-    classifiers.append(nn.Softmax().to(device))
-    model.classifier = nn.Sequential(*classifiers).to(device)
+        classifiers.append(nn.BatchNorm1d(layers[i]))
+        #classifiers.append(nn.Linear(layers[i],layers[i+1]))
+        classifiers.append(nn.ReLU())
+        #classifiers.append(nn.BatchNorm1d(layers[i]))
+        classifiers.append(nn.Dropout(p=0.5))
+        classifiers.append(nn.Linear(layers[i],layers[i+1]))
+    #classifiers.append(nn.Linear(64,8))
+    classifiers.append(nn.Softmax())
+    model.classifier = nn.Sequential(*classifiers)
     module = 0
     for layer in model.children():
         for param in layer.parameters():
             if module == 0:
-                param.requires_grad = True
+                param.requires_grad = False
             else:
                 param.requires_grad = True
         module+=1  
+    model = model.to(device)
     summary(model, (3, 224, 224)) 
-    return model.to(device)
+    info = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
+    print("Total memory:", info.total)
+    print("Free memory:", info.free)
+    print("Used memory:", info.used)
+    nvidia_smi.nvmlShutdown() 
+    return model
 
 
 def get_validation_predictions(train_data, predictions_valid):
@@ -170,8 +189,8 @@ def get_validation_predictions(train_data, predictions_valid):
 
 def run_cross_validation_create_models(nfolds=10):
     # input image dimensions
-    batch_size = 32
-    num_epoch = 40
+    batch_size = 64
+    num_epoch = 80
     random_state = 51
 
     train_data, train_target, train_id = read_and_normalize_train_data()
@@ -185,16 +204,17 @@ def run_cross_validation_create_models(nfolds=10):
         model = create_model()
         #X_train = train_data[train_index]
         #Y_train = train_target[train_index]
-        X_valid = train_data[test_index]
-        Y_valid = train_target[test_index]
+               
+        #X_valid = train_data[test_index]
+        #Y_valid = train_target[test_index]
         loss_fn = nn.CrossEntropyLoss().to(device)
         optimizer = optim.Adam(model.parameters())
 
         num_fold += 1
-        print('Start KFold number {} from {}'.format(num_fold, nfolds))
-        print('Split train: ', len(train_index), len(train_index))
-        print('Split valid: ', len(X_valid), len(Y_valid))
-
+        #print('Start KFold number {} from {}'.format(num_fold, nfolds))
+        #print('Split train: ', len(train_index), len(train_index))
+       # print('Split valid: ', len(X_valid), len(Y_valid))
+        
         for epoch in range(1,num_epoch+1):
             train_loader = torch.utils.data.DataLoader(train_index,batch_size=batch_size,shuffle=True,num_workers=2)
             print("epoch: ",epoch)
@@ -208,27 +228,34 @@ def run_cross_validation_create_models(nfolds=10):
                 loss.backward()
                 optimizer.step()
                 batch= batch + 1
+                del X_train, Y_train, predict, loss
 
-        test_loader = torch.utils.data.DataLoader(X_valid,batch_size=batch_size,shuffle=False,num_workers=2)
-        predictions = []
-        for test_batch in test_loader:
-            X_valid = torch.tensor(test_batch).to(device)
-            predictions_valid = model(X_valid).to(device)
-            if len(predictions) == 0:
-                predictions = predictions_valid
-            else:
-                predictions = torch.concat((predictions,predictions_valid)).to(device)
+        with torch.no_grad():
+            test_loader = torch.utils.data.DataLoader(test_index,batch_size=10,shuffle=False,num_workers=2)
+            aciertos = 0
+            fallas = 0
+            Y_valid = torch.argmax(torch.tensor(train_target[test_index]),dim=1).to(device)
+            predictions = torch.tensor([]).cpu()
+            torch.cuda.empty_cache()
+            for test_batch in test_loader:
+                X_valid = train_data[test_batch]
+                X_valid = torch.tensor(X_valid).to(device)
+                predictions_valid = model(X_valid).cpu()
+            
+                #predictions = predictions.to(device)
+                #Y_valid = torch.argmax(torch.tensor(Y_valid),dim=1).to(device)
+                #predictions_labels = torch.argmax(predictions_valid,dim=1)
+                predictions = torch.concat((predictions,predictions_valid))
+            predictions_labels = torch.argmax(predictions,dim=1)
+            conf_matrix = confusion_matrix(Y_valid.cpu(),predictions_labels.cpu())
+            print(conf_matrix)
+            print("aciertos: ",np.trace(conf_matrix))
+            print("fallas: ",np.sum(conf_matrix))
         
-        Y_valid = torch.argmax(torch.tensor(Y_valid),dim=1).to(device)
-        predictions_labels = torch.argmax(predictions,dim=1).to(device)
-        conf_matrix = confusion_matrix(Y_valid.cpu(),predictions_labels.cpu())
-        print(conf_matrix)
-        print("aciertos: ",np.trace(conf_matrix))
-        print("fallas: ",np.sum(conf_matrix))
-        current_model_error = loss_fn(predictions,Y_valid) 
-        if (current_model_error < best_model_error):
-            best_model_error = current_model_error
-            best_model = model
+            current_model_error = loss_fn(predictions,Y_valid.cpu()) 
+            if (current_model_error < best_model_error):
+                best_model_error = current_model_error
+                best_model = model
     
 
     info_string = 'loss_' + str(best_model_error) + '_folds_' + str(nfolds)

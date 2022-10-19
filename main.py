@@ -228,39 +228,33 @@ def run_cross_validation_create_models(nfolds=10):
                 loss.backward()
                 optimizer.step()
                 batch= batch + 1
-                del X_train, Y_train, predict, loss
-
-        with torch.no_grad():
-            test_loader = torch.utils.data.DataLoader(test_index,batch_size=10,shuffle=False,num_workers=2)
-            aciertos = 0
-            fallas = 0
-            Y_valid = torch.argmax(torch.tensor(train_target[test_index]),dim=1).to(device)
-            predictions = torch.tensor([]).cpu()
-            torch.cuda.empty_cache()
-            for test_batch in test_loader:
-                X_valid = train_data[test_batch]
-                X_valid = torch.tensor(X_valid).to(device)
-                predictions_valid = model(X_valid).cpu()
+                #del X_train, Y_train, predict, loss
+            with torch.no_grad():
+                test_loader = torch.utils.data.DataLoader(test_index,batch_size=10,shuffle=False,num_workers=2)
+                Y_valid = torch.argmax(torch.tensor(train_target[test_index]),dim=1).to(device)
+                predictions = torch.tensor([]).cpu()
+                torch.cuda.empty_cache()
+                for test_batch in test_loader:
+                    X_valid = train_data[test_batch]
+                    X_valid = torch.tensor(X_valid).to(device)
+                    predictions_valid = model(X_valid).cpu()
+                    predictions = torch.concat((predictions,predictions_valid))
+                predictions_labels = torch.argmax(predictions,dim=1)
+                conf_matrix = confusion_matrix(Y_valid.cpu(),predictions_labels.cpu())
+                print(conf_matrix)
+                print("aciertos: ",np.trace(conf_matrix))
+                print("fallas: ",np.sum(conf_matrix))
             
-                #predictions = predictions.to(device)
-                #Y_valid = torch.argmax(torch.tensor(Y_valid),dim=1).to(device)
-                #predictions_labels = torch.argmax(predictions_valid,dim=1)
-                predictions = torch.concat((predictions,predictions_valid))
-            predictions_labels = torch.argmax(predictions,dim=1)
-            conf_matrix = confusion_matrix(Y_valid.cpu(),predictions_labels.cpu())
-            print(conf_matrix)
-            print("aciertos: ",np.trace(conf_matrix))
-            print("fallas: ",np.sum(conf_matrix))
+                current_model_error = loss_fn(predictions,Y_valid.cpu()) 
+                if (current_model_error < best_model_error):
+                    best_model_error = current_model_error
+                    best_model = model
         
-            current_model_error = loss_fn(predictions,Y_valid.cpu()) 
-            if (current_model_error < best_model_error):
-                best_model_error = current_model_error
-                best_model = model
     
 
     info_string = 'loss_' + str(best_model_error) + '_folds_' + str(nfolds)
     print(info_string)
-    return info_string, model
+    return info_string, best_model
 
 
 def run_cross_validation_process_test(info_string, models):

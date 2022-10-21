@@ -32,7 +32,7 @@ print(torch.version.cuda)
 print(torch.cuda.is_available())
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')                                                      
 #columns=['ALB','BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
-columns = ['Mugil cephalus','Rhinobatos cemiculus','Scomber japonicus','Tetrapturus belone']
+columns = ['MugilCephalus','RhinobatosCemiculus','ScomberJaponicus','TetrapturusBelone']
 
 print("device is: ",device)
 #torch.cuda.set_per_process_memory_fraction(1.0, device=None) 
@@ -54,7 +54,7 @@ def load_train():
         index = columns.index(fld)
         print('Load folder {} (Index: {})'.format(fld, index))
         #path = os.path.join('.','NatureConservancy', 'train', fld, '*.jpg')
-        path = os.path.join('.','Fish Species', 'Training_Set', fld, '*.jpg')
+        path = os.path.join('.','FishSpecies', 'Training_Set', fld, '*.jpg')
         print(path)
         files = glob.glob(path)
         for fl in files:
@@ -72,7 +72,7 @@ def load_train():
 
 def load_test():
     #path = os.path.join('.','NatureConservancy',  'test_stg1', '*.jpg')
-    path = os.path.join('.','Fish Species', 'Training_Set', fld, '*.jpg')
+    path = os.path.join('.','FishSpecies', 'Training_Set', fld, '*.jpg')
     files = sorted(glob.glob(path))
 
     X_test = []

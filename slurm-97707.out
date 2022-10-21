@@ -1,0 +1,57 @@
+2022-10-19 23:33:50.724215: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F AVX512_VNNI FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2022-10-19 23:33:50.870055: I tensorflow/core/util/util.cc:169] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2022-10-19 23:33:50.919495: E tensorflow/stream_executor/cuda/cuda_blas.cc:2981] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2022-10-19 23:33:52.315425: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer.so.7'; dlerror: libnvinfer.so.7: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/cesar.madera/.local/lib/python3.9/site-packages/cv2/../../lib64:/usr/local/cuda-11.4/lib64:/opt/apps/Python-3.9.2/lib:/usr/local/cuda-11.4/nvvm/lib64:/usr/local/cuda-11.4/extras/CUPTI/lib64:/usr/local/cuda-11.4/lib64:/opt/apps/gcc-9.2.0/lib64:/opt/apps/gcc-9.2.0/lib
+2022-10-19 23:33:52.315515: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer_plugin.so.7'; dlerror: libnvinfer_plugin.so.7: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/cesar.madera/.local/lib/python3.9/site-packages/cv2/../../lib64:/usr/local/cuda-11.4/lib64:/opt/apps/Python-3.9.2/lib:/usr/local/cuda-11.4/nvvm/lib64:/usr/local/cuda-11.4/extras/CUPTI/lib64:/usr/local/cuda-11.4/lib64:/opt/apps/gcc-9.2.0/lib64:/opt/apps/gcc-9.2.0/lib
+2022-10-19 23:33:52.315527: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
+10.2
+True
+device is:  cuda
+Keras version: 2.10.0
+Read train images
+Load folder ALB (Index: 0)
+./NatureConservancy/train/ALB/*.jpg
+Load folder BET (Index: 1)
+./NatureConservancy/train/BET/*.jpg
+Load folder DOL (Index: 2)
+./NatureConservancy/train/DOL/*.jpg
+Load folder LAG (Index: 3)
+./NatureConservancy/train/LAG/*.jpg
+Load folder NoF (Index: 4)
+./NatureConservancy/train/NoF/*.jpg
+Load folder OTHER (Index: 5)
+./NatureConservancy/train/OTHER/*.jpg
+Load folder SHARK (Index: 6)
+./NatureConservancy/train/SHARK/*.jpg
+Load folder YFT (Index: 7)
+./NatureConservancy/train/YFT/*.jpg
+Read train data time: 49.55 seconds
+Convert to numpy...
+Reshape...
+Convert to float...
+Train shape: (3777, 3, 244, 244)
+3777 train samples
+Total memory: 15843721216
+Free memory: 733741056
+Used memory: 15109980160
+Traceback (most recent call last):
+  File "/home/cesar.madera/Fish-classification/main.py", line 291, in <module>
+    info_string, model = run_cross_validation_create_models(num_folds)
+  File "/home/cesar.madera/Fish-classification/main.py", line 207, in run_cross_validation_create_models
+    model = create_model()
+  File "/home/cesar.madera/Fish-classification/main.py", line 175, in create_model
+    model = model.to(device)
+  File "/home/cesar.madera/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 927, in to
+    return self._apply(convert)
+  File "/home/cesar.madera/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 579, in _apply
+    module._apply(fn)
+  File "/home/cesar.madera/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 579, in _apply
+    module._apply(fn)
+  File "/home/cesar.madera/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 602, in _apply
+    param_applied = fn(param)
+  File "/home/cesar.madera/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 925, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.

@@ -1,0 +1,220 @@
+2022-10-19 23:51:56.598863: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F AVX512_VNNI FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2022-10-19 23:51:56.744279: I tensorflow/core/util/util.cc:169] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2022-10-19 23:51:56.791027: E tensorflow/stream_executor/cuda/cuda_blas.cc:2981] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2022-10-19 23:51:58.173491: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer.so.7'; dlerror: libnvinfer.so.7: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/cesar.madera/.local/lib/python3.9/site-packages/cv2/../../lib64:/usr/local/cuda-11.4/lib64:/opt/apps/Python-3.9.2/lib:/usr/local/cuda-11.4/nvvm/lib64:/usr/local/cuda-11.4/extras/CUPTI/lib64:/usr/local/cuda-11.4/lib64:/opt/apps/gcc-9.2.0/lib64:/opt/apps/gcc-9.2.0/lib
+2022-10-19 23:51:58.173583: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer_plugin.so.7'; dlerror: libnvinfer_plugin.so.7: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/cesar.madera/.local/lib/python3.9/site-packages/cv2/../../lib64:/usr/local/cuda-11.4/lib64:/opt/apps/Python-3.9.2/lib:/usr/local/cuda-11.4/nvvm/lib64:/usr/local/cuda-11.4/extras/CUPTI/lib64:/usr/local/cuda-11.4/lib64:/opt/apps/gcc-9.2.0/lib64:/opt/apps/gcc-9.2.0/lib
+2022-10-19 23:51:58.173595: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
+10.2
+True
+device is:  cuda
+Keras version: 2.10.0
+Read train images
+Load folder ALB (Index: 0)
+./NatureConservancy/train/ALB/*.jpg
+Load folder BET (Index: 1)
+./NatureConservancy/train/BET/*.jpg
+Load folder DOL (Index: 2)
+./NatureConservancy/train/DOL/*.jpg
+Load folder LAG (Index: 3)
+./NatureConservancy/train/LAG/*.jpg
+Load folder NoF (Index: 4)
+./NatureConservancy/train/NoF/*.jpg
+Load folder OTHER (Index: 5)
+./NatureConservancy/train/OTHER/*.jpg
+Load folder SHARK (Index: 6)
+./NatureConservancy/train/SHARK/*.jpg
+Load folder YFT (Index: 7)
+./NatureConservancy/train/YFT/*.jpg
+Read train data time: 49.36 seconds
+Convert to numpy...
+Reshape...
+Convert to float...
+Train shape: (3777, 3, 244, 244)
+3777 train samples
+Total memory: 15843721216
+Free memory: 15840575488
+Used memory: 3145728
+----------------------------------------------------------------
+        Layer (type)               Output Shape         Param #
+================================================================
+            Conv2d-1         [-1, 64, 224, 224]           1,792
+              ReLU-2         [-1, 64, 224, 224]               0
+            Conv2d-3         [-1, 64, 224, 224]          36,928
+              ReLU-4         [-1, 64, 224, 224]               0
+         MaxPool2d-5         [-1, 64, 112, 112]               0
+            Conv2d-6        [-1, 128, 112, 112]          73,856
+              ReLU-7        [-1, 128, 112, 112]               0
+            Conv2d-8        [-1, 128, 112, 112]         147,584
+              ReLU-9        [-1, 128, 112, 112]               0
+        MaxPool2d-10          [-1, 128, 56, 56]               0
+           Conv2d-11          [-1, 256, 56, 56]         295,168
+             ReLU-12          [-1, 256, 56, 56]               0
+           Conv2d-13          [-1, 256, 56, 56]         590,080
+             ReLU-14          [-1, 256, 56, 56]               0
+           Conv2d-15          [-1, 256, 56, 56]         590,080
+             ReLU-16          [-1, 256, 56, 56]               0
+           Conv2d-17          [-1, 256, 56, 56]         590,080
+             ReLU-18          [-1, 256, 56, 56]               0
+        MaxPool2d-19          [-1, 256, 28, 28]               0
+           Conv2d-20          [-1, 512, 28, 28]       1,180,160
+             ReLU-21          [-1, 512, 28, 28]               0
+           Conv2d-22          [-1, 512, 28, 28]       2,359,808
+             ReLU-23          [-1, 512, 28, 28]               0
+           Conv2d-24          [-1, 512, 28, 28]       2,359,808
+             ReLU-25          [-1, 512, 28, 28]               0
+           Conv2d-26          [-1, 512, 28, 28]       2,359,808
+             ReLU-27          [-1, 512, 28, 28]               0
+        MaxPool2d-28          [-1, 512, 14, 14]               0
+           Conv2d-29          [-1, 512, 14, 14]       2,359,808
+             ReLU-30          [-1, 512, 14, 14]               0
+           Conv2d-31          [-1, 512, 14, 14]       2,359,808
+             ReLU-32          [-1, 512, 14, 14]               0
+           Conv2d-33          [-1, 512, 14, 14]       2,359,808
+             ReLU-34          [-1, 512, 14, 14]               0
+           Conv2d-35          [-1, 512, 14, 14]       2,359,808
+             ReLU-36          [-1, 512, 14, 14]               0
+        MaxPool2d-37            [-1, 512, 7, 7]               0
+AdaptiveAvgPool2d-38            [-1, 512, 7, 7]               0
+           Linear-39                 [-1, 4096]     102,764,544
+             ReLU-40                 [-1, 4096]               0
+      BatchNorm1d-41                 [-1, 4096]           8,192
+          Dropout-42                 [-1, 4096]               0
+           Linear-43                 [-1, 1024]       4,195,328
+             ReLU-44                 [-1, 1024]               0
+      BatchNorm1d-45                 [-1, 1024]           2,048
+          Dropout-46                 [-1, 1024]               0
+           Linear-47                  [-1, 128]         131,200
+             ReLU-48                  [-1, 128]               0
+      BatchNorm1d-49                  [-1, 128]             256
+          Dropout-50                  [-1, 128]               0
+           Linear-51                    [-1, 8]           1,032
+          Softmax-52                    [-1, 8]               0
+================================================================
+Total params: 127,126,984
+Trainable params: 107,102,600
+Non-trainable params: 20,024,384
+----------------------------------------------------------------
+Input size (MB): 0.57
+Forward/backward pass size (MB): 238.65
+Params size (MB): 484.95
+Estimated Total Size (MB): 724.18
+----------------------------------------------------------------
+Total memory: 15843721216
+Free memory: 14281342976
+Used memory: 1562378240
+epoch:  1
+tensor(2.0903, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(2.0569, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(2.0332, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.9958, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.9467, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.9529, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.9512, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8792, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.9274, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.9076, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.9611, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8924, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8700, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8226, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8695, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.9112, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8838, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8860, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8234, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8259, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8306, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8377, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8780, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8161, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7824, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8356, device='cuda:0', grad_fn=<NllLossBackward0>)
+[[125   1   0   0  39   0   0  76]
+ [ 15   0   0   0   2   0   0   9]
+ [  8   0   0   0   5   0   0   7]
+ [  7   0   0   0   1   0   0   3]
+ [ 23   1   0   0  13   1   0  24]
+ [ 32   0   0   0   5   0   0  12]
+ [  6   0   0   0   1   1   0  15]
+ [ 49   4   0   0   7   2   0  46]]
+aciertos:  184
+fallas:  540
+loss_tensor(1.9522)_folds_7
+epoch:  2
+tensor(1.8891, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7892, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8144, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8661, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7548, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7847, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8104, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7527, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7040, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8149, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7957, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8077, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7288, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8122, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7903, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7421, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7535, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7520, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7332, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.6890, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7217, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.6819, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8216, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7625, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7620, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.8386, device='cuda:0', grad_fn=<NllLossBackward0>)
+[[149   4   0   0  26   1   0  61]
+ [ 16   1   0   0   2   0   0   7]
+ [  6   0   0   0   7   0   0   7]
+ [ 11   0   0   0   0   0   0   0]
+ [ 22   0   0   0  24   0   0  16]
+ [ 33   0   0   0   4   1   0  11]
+ [  6   0   0   0   3   0   0  14]
+ [ 53   2   0   0  13   0   0  40]]
+aciertos:  215
+fallas:  540
+loss_tensor(1.9050)_folds_7
+epoch:  3
+tensor(1.7025, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7779, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7015, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.6892, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7746, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7166, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7361, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7577, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7677, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7333, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7018, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.6815, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7087, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.6290, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7499, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7110, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7211, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.6882, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7820, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7677, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.6582, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.6634, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.6674, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.6994, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7502, device='cuda:0', grad_fn=<NllLossBackward0>)
+tensor(1.7142, device='cuda:0', grad_fn=<NllLossBackward0>)
+[[147   2   0   0  33   2   7  50]
+ [ 15   1   0   0   3   2   1   4]
+ [  8   0   0   0   5   0   0   7]
+ [ 10   0   0   0   1   0   0   0]
+ [ 20   0   0   0  21   2   3  16]
+ [ 30   0   0   0   8   1   1   9]
+ [  8   2   0   0   3   0   0  10]
+ [ 51   1   0   0  11   9   1  35]]
+aciertos:  205
+fallas:  540
+loss_tensor(1.9050)_folds_7
+epoch:  4

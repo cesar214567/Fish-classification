@@ -2,6 +2,11 @@ import torch
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix,classification_report
 import numpy as np
+import torchvision.models as models
+print(torch.version.cuda)
+print(torch.cuda.is_available())
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 T1 = torch.Tensor([[1,2],[3,4], [5,6]])
 T2 = torch.Tensor([[2,3],[4,5], [6,7]])
 T  = torch.cat((T1,T2))
@@ -17,7 +22,9 @@ print(m)
 T5 = torch.argmax(T3,dim=1).unsqueeze(-1)
 print(T4)
 
-print(confusion_matrix(T4,T5,normalize = None))
-print(np.sum(T3.numpy()))
+#print(confusion_matrix(T4,T5,normalize = None))
+#print(np.sum(T3.numpy()))
 
-print(classification_report(T4, T5,target_names=['0','1']))
+#print(classification_report(T4, T5,target_names=['0','1']))
+model = models.vgg19(pretrained=False).to(device)
+

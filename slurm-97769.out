@@ -1,0 +1,25 @@
+2022-10-21 14:23:03.456655: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F AVX512_VNNI FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2022-10-21 14:23:03.599537: I tensorflow/core/util/util.cc:169] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2022-10-21 14:23:03.646388: E tensorflow/stream_executor/cuda/cuda_blas.cc:2981] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2022-10-21 14:23:05.013043: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer.so.7'; dlerror: libnvinfer.so.7: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/cesar.madera/.local/lib/python3.9/site-packages/cv2/../../lib64:/usr/local/cuda-11.4/lib64:/opt/apps/Python-3.9.2/lib:/usr/local/cuda-11.4/nvvm/lib64:/usr/local/cuda-11.4/extras/CUPTI/lib64:/usr/local/cuda-11.4/lib64:/opt/apps/gcc-9.2.0/lib64:/opt/apps/gcc-9.2.0/lib
+2022-10-21 14:23:05.013133: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer_plugin.so.7'; dlerror: libnvinfer_plugin.so.7: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/cesar.madera/.local/lib/python3.9/site-packages/cv2/../../lib64:/usr/local/cuda-11.4/lib64:/opt/apps/Python-3.9.2/lib:/usr/local/cuda-11.4/nvvm/lib64:/usr/local/cuda-11.4/extras/CUPTI/lib64:/usr/local/cuda-11.4/lib64:/opt/apps/gcc-9.2.0/lib64:/opt/apps/gcc-9.2.0/lib
+2022-10-21 14:23:05.013145: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
+10.2
+True
+device is:  cuda
+Keras version: 2.10.0
+Read train images
+Load folder Mugil cephalus (Index: 0)
+./Fish Species/Training_Set/Mugil cephalus/*.jpg
+./Fish Species/Training_Set/Mugil cephalus/mugil_cephalus-1579.jpg
+Traceback (most recent call last):
+  File "/home/cesar.madera/Fish-classification/main.py", line 300, in <module>
+    info_string, model = run_cross_validation_create_models(num_folds)
+  File "/home/cesar.madera/Fish-classification/main.py", line 207, in run_cross_validation_create_models
+    train_data, train_target, train_id = read_and_normalize_train_data()
+  File "/home/cesar.madera/Fish-classification/main.py", line 100, in read_and_normalize_train_data
+    train_data, train_target, train_id = load_train()
+  File "/home/cesar.madera/Fish-classification/main.py", line 64, in load_train
+    if img == None:
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()

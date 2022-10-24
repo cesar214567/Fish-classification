@@ -60,8 +60,12 @@ def load_train():
         for fl in files:
             print(fl)
             flbase = os.path.basename(fl)
-            img = get_im_cv2(fl)
-            print(img.shape)
+            #img = get_im_cv2(fl)
+            #print(img.shape)
+            img = cv2.imread(fl)
+            if img is None: 
+                continue
+            img = cv2.resize(img, (244, 244), cv2.INTER_LINEAR)
             X_train.append(img)
             X_train_id.append(flbase)
             y_train.append(index)
@@ -106,7 +110,7 @@ def read_and_normalize_train_data():
     print('Convert to float...')
     train_data = train_data.astype('float32')
     train_data = train_data / 255
-    train_target = np_utils.to_categorical(train_target, 8)
+    train_target = np_utils.to_categorical(train_target, len(columns))
 
     print('Train shape:', train_data.shape)
     print(train_data.shape[0], 'train samples')
@@ -146,9 +150,9 @@ def merge_several_folds_mean(data, nfolds):
 
 
 def create_model(): 
-    model = models.vgg19(pretrained=False)
+    model = tf.keras.applications.efficientnet.EfficientNetB0(weights='efficientnetb0.h5' )
     #layers = [25088,2048,512,64,8]
-    layers = [4096,1024,128,8]
+    layers = [4096,1024,128,len(columns)]
     classifiers = [model.classifier[0]] 
     nvidia_smi.nvmlInit()
     handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
@@ -166,7 +170,7 @@ def create_model():
         classifiers.append(nn.Dropout(p=0.5))
         classifiers.append(nn.Linear(layers[i],layers[i+1]))
     
-    classifiers.append(nn.BatchNorm1d(8))
+    classifiers.append(nn.BatchNorm1d(len(columns)))
     classifiers.append(nn.Softmax())
     model.classifier = nn.Sequential(*classifiers)
     module = 0
@@ -199,7 +203,7 @@ def get_validation_predictions(train_data, predictions_valid):
 def run_cross_validation_create_models(nfolds=10):
     # input image dimensions
     batch_size = 128
-    num_epoch = 20
+    num_epoch = 80
     random_state = 51
 
     train_data, train_target, train_id = read_and_normalize_train_data()
@@ -217,8 +221,8 @@ def run_cross_validation_create_models(nfolds=10):
                
         #X_valid = train_data[test_index]
         #Y_valid = train_target[test_index]
-        loss_fn = nn.CrossEntropyLoss(reduction='sum').to(device)
-        optimizer = optim.Adam(model.parameters())
+        loss_fn = nn.CrossEntropyLoss().to(device)
+        optimizer = optim.Adam(model.parameters(),lr = 0.003)
 
         num_fold += 1
         #print('Start KFold number {} from {}'.format(num_fold, nfolds))
@@ -263,6 +267,7 @@ def run_cross_validation_create_models(nfolds=10):
                 print("fallas: ",np.sum(conf_matrix))
             
                 current_model_error = loss_fn(predictions,Y_valid.cpu()) 
+                print("current error is: ",current_model_error)
                 if (current_model_error < best_model_error):
                     best_model_error = current_model_error
                     best_model = model

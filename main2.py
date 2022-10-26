@@ -148,12 +148,20 @@ def merge_several_folds_mean(data, nfolds):
     a /= nfolds
     return a.tolist()
 
+def getClassifier():
+
+
 
 def create_model(): 
-    model = tf.keras.applications.efficientnet.EfficientNetB0(weights='efficientnetb0.h5' )
+    IMG_SIZE = 224
+    inputs = layers.Input(shape=(IMG_SIZE, IMG_SIZE, 3))
+    model = tf.keras.applications.efficientnet.EfficientNetB0(weights='efficientnetb0.h5',include_top=False )
     #layers = [25088,2048,512,64,8]
-    layers = [4096,1024,128,len(columns)]
-    classifiers = [model.classifier[0]] 
+    print(model.output)
+    layers = [4096,1024,128]
+    classifiers = [] 
+
+
     nvidia_smi.nvmlInit()
     handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
     # card id 0 hardcoded here, there is also a call to get all available card ids, so we could iterate
@@ -162,29 +170,13 @@ def create_model():
     print("Free memory:", info.free)
     print("Used memory:", info.used)
     #classifiers = [model.classifier[0]] 
-    for i in range(len(layers)-1):
-        #classifiers.append(nn.BatchNorm1d(layers[i]))
-        #classifiers.append(nn.Linear(layers[i],layers[i+1]))
-        classifiers.append(nn.ReLU())
-        classifiers.append(nn.BatchNorm1d(layers[i]))
-        classifiers.append(nn.Dropout(p=0.5))
-        classifiers.append(nn.Linear(layers[i],layers[i+1]))
-    
-    classifiers.append(nn.BatchNorm1d(len(columns)))
-    classifiers.append(nn.Softmax())
-    model.classifier = nn.Sequential(*classifiers)
-    module = 0
-    layers = 0
-    for layer in model.children():
-        for param in layer.parameters():
-            if module == 0:
-                param.requires_grad = False
-                layers+=1
-            else:
-                param.requires_grad = True
-        module+=1  
-    model = model.to(device)
-    summary(model, (3, 224, 224)) 
+    top_dropout_rate = 0.35 
+    x = layers.BatchNormalization()(model.output)
+    for layer in layers:
+        x = layers.Dropout(top_dropout_rate, name="top_dropout")(x)
+        x = layers.Dense(layer, activation="relu", name="pred")(x)    
+        x = layers.BatchNormalization()(model.output)     
+    x = layers.Dense(len(columns), activation="softmax", name="pred")(x)
     info = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
     print("Total memory:", info.total)
     print("Free memory:", info.free)

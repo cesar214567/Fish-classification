@@ -26,15 +26,18 @@ import numpy as np
 import torch.nn as nn
 import torch.optim as optim
 
-import nvidia_smi
+#import nvidia_smi
 
-print(torch.version.cuda)
-print(torch.cuda.is_available())
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')                                                      
+#print(torch.version.cuda)
+#print(torch.cuda.is_available())
+#device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')                                                      
 #columns=['ALB','BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
+
+#tf.debugging.set_log_device_placement(True)
+
 columns = ['MugilCephalus','RhinobatosCemiculus','ScomberJaponicus','TetrapturusBelone']
 
-print("device is: ",device)
+#print("device is: ",device)
 #torch.cuda.set_per_process_memory_fraction(1.0, device=None) 
 def get_im_cv2(path):
     img = cv2.imread(path)
@@ -55,10 +58,9 @@ def load_train():
         print('Load folder {} (Index: {})'.format(fld, index))
         #path = os.path.join('.','NatureConservancy', 'train', fld, '*.jpg')
         path = os.path.join('.','FishSpecies', 'Training_Set', fld, '*.jpg')
-        print(path)
         files = glob.glob(path)
         for fl in files:
-            print(fl)
+            #print(fl)
             flbase = os.path.basename(fl)
             #img = get_im_cv2(fl)
             #print(img.shape)
@@ -104,8 +106,8 @@ def read_and_normalize_train_data():
     print('Convert to numpy...')
     train_data = np.array(train_data, dtype=np.uint8)
     train_target = np.array(train_target, dtype=np.uint8)
-    print('Reshape...')
-    train_data = train_data.transpose((0, 3, 1, 2))
+    #print('Reshape...')
+    #train_data = train_data.transpose((0, 3, 1, 2))
 
     print('Convert to float...')
     train_data = train_data.astype('float32')
@@ -148,40 +150,31 @@ def merge_several_folds_mean(data, nfolds):
     a /= nfolds
     return a.tolist()
 
-def getClassifier():
-
-
-
 def create_model(): 
     IMG_SIZE = 224
-    inputs = layers.Input(shape=(IMG_SIZE, IMG_SIZE, 3))
-    model = tf.keras.applications.efficientnet.EfficientNetB0(weights='efficientnetb0.h5',include_top=False )
-    #layers = [25088,2048,512,64,8]
-    print(model.output)
-    layers = [4096,1024,128]
-    classifiers = [] 
-
-
-    nvidia_smi.nvmlInit()
-    handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
-    # card id 0 hardcoded here, there is also a call to get all available card ids, so we could iterate
-    info = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
-    print("Total memory:", info.total)
-    print("Free memory:", info.free)
-    print("Used memory:", info.used)
-    #classifiers = [model.classifier[0]] 
+    #tf.keras.applications.efficientnet.EfficientNetB0(include_top=True).summary()
+    pretrained_model = tf.keras.applications.efficientnet.EfficientNetB0(input_shape=(244,244,3),weights='imagenet',include_top=False )
+    
+    print(pretrained_model.output)
+    layers = [1024,256,64]
+    sequential_layers = [pretrained_model,tf.keras.layers.GlobalAveragePooling2D(),tf.keras.layers.Flatten()]
     top_dropout_rate = 0.35 
-    x = layers.BatchNormalization()(model.output)
     for layer in layers:
-        x = layers.Dropout(top_dropout_rate, name="top_dropout")(x)
-        x = layers.Dense(layer, activation="relu", name="pred")(x)    
-        x = layers.BatchNormalization()(model.output)     
-    x = layers.Dense(len(columns), activation="softmax", name="pred")(x)
-    info = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
-    print("Total memory:", info.total)
-    print("Free memory:", info.free)
-    print("Used memory:", info.used)
-    nvidia_smi.nvmlShutdown() 
+        sequential_layers.append(tf.keras.layers.BatchNormalization())
+        sequential_layers.append(tf.keras.layers.Dropout(top_dropout_rate))
+        sequential_layers.append(tf.keras.layers.Dense(layer, activation="relu"))    
+    sequential_layers.append(tf.keras.layers.BatchNormalization())
+    sequential_layers.append(tf.keras.layers.Dropout(top_dropout_rate))
+    sequential_layers.append(tf.keras.layers.Dense(len(columns), activation="softmax", name="pred"))
+    model = tf.keras.Sequential(sequential_layers)
+    model.summary()
+    
+    optimizer = tf.keras.optimizers.Adam()
+    loss = tf.keras.losses.CategoricalCrossentropy()
+    metrics=[tf.keras.metrics.CategoricalAccuracy()],
+
+    model.compile(optimizer=optimizer,loss=loss,metrics=metrics)
+
     return model
 
 
@@ -208,63 +201,47 @@ def run_cross_validation_create_models(nfolds=10):
     
     for train_index, test_index in kf.split(train_data):
         model = create_model()
-        #X_train = train_data[train_index]
-        #Y_train = train_target[train_index]
+        X_train = train_data[train_index]
+        Y_train = train_target[train_index]
                
-        #X_valid = train_data[test_index]
-        #Y_valid = train_target[test_index]
-        loss_fn = nn.CrossEntropyLoss().to(device)
-        optimizer = optim.Adam(model.parameters(),lr = 0.003)
+        X_valid = train_data[test_index]
+        Y_valid = train_target[test_index]
 
         num_fold += 1
-        #print('Start KFold number {} from {}'.format(num_fold, nfolds))
-        #print('Split train: ', len(train_index), len(train_index))
-       # print('Split valid: ', len(X_valid), len(Y_valid))
-        
-        for epoch in range(1,num_epoch+1):
-            train_loader = torch.utils.data.DataLoader(train_index,batch_size=batch_size,shuffle=True,num_workers=2)
-            print("epoch: ",epoch)
-            batch = 0
-            for train_batch_indexes in train_loader:
-                X_train = torch.tensor(train_data[train_batch_indexes]).to(device)
-                Y_train = torch.tensor(train_target[train_batch_indexes])
-                #print(Y_train)
-                Y_train = torch.argmax(Y_train,dim=1).to(device)
-                #print(X_train)
-                #print(Y_train)
-                #exit()
-                optimizer.zero_grad()
-                predict = model(X_train).to(device)
-                loss = loss_fn(predict,Y_train).to(device)
-                print(loss)
-                loss.backward()
-                optimizer.step()
-                batch= batch + 1
-                #del X_train, Y_train, predict,  a#loss     ''
-            with torch.no_grad():
-                test_loader = torch.utils.data.DataLoader(test_index,batch_size=32,shuffle=False,num_workers=4)
-                Y_valid = torch.tensor(train_target[test_index])
-                Y_valid = torch.argmax(Y_valid,dim=1)
-                predictions = torch.tensor([]).cpu()
-                
-                for test_batch in test_loader:
-                    X_valid = train_data[test_batch]
-                    X_valid = torch.tensor(X_valid).to(device)
-                    predictions_valid = model(X_valid).cpu()
-                    predictions = torch.concat((predictions,predictions_valid))
-                predictions_labels = torch.argmax(predictions,dim=1)
-                conf_matrix = confusion_matrix(Y_valid.cpu(),predictions_labels.cpu())
-                print(conf_matrix)
-                print("aciertos: ",np.trace(conf_matrix))
-                print("fallas: ",np.sum(conf_matrix))
+        print("fold: ",num_fold)
+
+        history = model.fit(
+            X_train,
+            Y_train,
+            batch_size=32,
+            epochs=5,
+            validation_data=(X_valid, Y_valid),
+        )
+        exit()
+        with torch.no_grad():
+            test_loader = torch.utils.data.DataLoader(test_index,batch_size=32,shuffle=False,num_workers=4)
+            Y_valid = torch.tensor(train_target[test_index])
+            Y_valid = torch.argmax(Y_valid,dim=1)
+            predictions = torch.tensor([]).cpu()
             
-                current_model_error = loss_fn(predictions,Y_valid.cpu()) 
-                print("current error is: ",current_model_error)
-                if (current_model_error < best_model_error):
-                    best_model_error = current_model_error
-                    best_model = model
-                info_string = 'loss_' + str(best_model_error) + '_folds_' + str(nfolds)
-                print(info_string)
+            for test_batch in test_loader:
+                X_valid = train_data[test_batch]
+                X_valid = torch.tensor(X_valid).to(device)
+                predictions_valid = model(X_valid).cpu()
+                predictions = torch.concat((predictions,predictions_valid))
+            predictions_labels = torch.argmax(predictions,dim=1)
+            conf_matrix = confusion_matrix(Y_valid.cpu(),predictions_labels.cpu())
+            print(conf_matrix)
+            print("aciertos: ",np.trace(conf_matrix))
+            print("fallas: ",np.sum(conf_matrix))
+        
+            current_model_error = loss_fn(predictions,Y_valid.cpu()) 
+            print("current error is: ",current_model_error)
+            if (current_model_error < best_model_error):
+                best_model_error = current_model_error
+                best_model = model
+            info_string = 'loss_' + str(best_model_error) + '_folds_' + str(nfolds)
+            print(info_string)
     return info_string, best_model
 
 

@@ -13,7 +13,7 @@ ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn
 ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_infer64_8.dll')
 ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_train64_8.dll')
 ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_cnn_train64_8.dll ')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_cnn_train64_8.dll')
 ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
 ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_train64_8.dll')
 
@@ -34,28 +34,17 @@ import tensorflow as tf
 
 import numpy as np
 from keras_dataloader.datagenerator import DataGenerator
-#import nvidia_smi
-
-#print(torch.version.cuda)
-#print(torch.cuda.is_available())
-#device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')                                                      
-#columns=['ALB','BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
+                                                
 print('GPU name: ', tf.config.experimental.list_physical_devices('GPU'))
 device_name = tf.test.gpu_device_name()
 print(device_name)
-
-#tf.debugging.set_log_device_placement(True)
-
-columns = ['MugilCephalus','RhinobatosCemiculus','ScomberJaponicus','TetrapturusBelone']
-
+random_state = 42
+columns=['ALB','BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
+#columns = ['MugilCephalus','RhinobatosCemiculus','ScomberJaponicus','TetrapturusBelone']
+IMG_COUNT = 224
+IMG_SIZE = (IMG_COUNT, IMG_COUNT)
 #print("device is: ",device)
 #torch.cuda.set_per_process_memory_fraction(1.0, device=None) 
-def get_im_cv2(path):
-    img = cv2.imread(path)
-    resized = cv2.resize(img, (244, 244), cv2.INTER_LINEAR)
-    return resized
-
-
 def load_train():
     X_train = []
     X_train_id = []
@@ -67,8 +56,8 @@ def load_train():
     for fld in columns:
         index = columns.index(fld)
         print('Load folder {} (Index: {})'.format(fld, index))
-        #path = os.path.join('.','NatureConservancy', 'train', fld, '*.jpg')
-        path = os.path.join('.','FishSpecies', 'Training_Set', fld, '*.jpg')
+        path = os.path.join('.','NatureConservancy', 'train', fld, '*.jpg')
+        #path = os.path.join('.','FishSpecies', 'Training_Set', fld, '*.jpg')
         files = glob.glob(path)
         for fl in files:
             #print(fl)
@@ -78,7 +67,7 @@ def load_train():
             img = cv2.imread(fl)
             if img is None: 
                 continue
-            img = cv2.resize(img, (244, 244), cv2.INTER_LINEAR)
+            img = cv2.resize(img, IMG_SIZE, cv2.INTER_LINEAR)
             X_train.append(img)
             X_train_id.append(flbase)
             y_train.append(index)
@@ -96,8 +85,8 @@ def load_test():
     for fld in columns:
         index = columns.index(fld)
         print('Load folder {} (Index: {})'.format(fld, index))
-        #path = os.path.join('.','NatureConservancy', 'train', fld, '*.jpg')
-        path = os.path.join('.','FishSpecies', 'Test_Set', fld, '*.jpg')
+        path = os.path.join('.','NatureConservancy', 'train', fld, '*.jpg')
+        #path = os.path.join('.','FishSpecies', 'Test_Set', fld, '*.jpg')
         files = glob.glob(path)
         for fl in files:
             #print(fl)
@@ -107,7 +96,7 @@ def load_test():
             img = cv2.imread(fl)
             if img is None: 
                 continue
-            img = cv2.resize(img, (244, 244), cv2.INTER_LINEAR)
+            img = cv2.resize(img, IMG_SIZE, cv2.INTER_LINEAR)
             X_test.append(img)
             Y_test.append(index)
 
@@ -179,10 +168,20 @@ def merge_several_folds_mean(data, nfolds):
     return a.tolist()
 
 def create_model(): 
-    IMG_SIZE = 224
     #tf.keras.applications.efficientnet.EfficientNetB0(include_top=True).summary()
-    #pretrained_model = tf.keras.applications.efficientnet.EfficientNetB0(input_shape=(244,244,3),weights='imagenet',include_top=False )
-    pretrained_model = tf.keras.applications.efficientnet.EfficientNetB0(input_shape=(244,244,3),weights='imagenet',include_top=False )
+    #pretrained_model = tf.keras.applications.VGG19(input_shape=(244,244,3),weights='imagenet',include_top=False )
+    #pretrained_model = tf.keras.applications.resnet.ResNet50(input_shape=(244,244,3),weights='imagenet',include_top=False )
+    #pretrained_model = tf.keras.applications.inception_v3.InceptionV3(input_shape=(244,244,3),weights='imagenet',include_top=False )
+    #pretrained_model = tf.keras.applications.mobilenet_v2.MobileNetV2(input_shape=(244,244,3),weights='imagenet',include_top=False )
+    pretrained_model = tf.keras.applications.mobilenet.MobileNet(input_shape=(244,244,3),weights='imagenet',include_top=False )
+    #for efficientnets pls check: https://keras.io/examples/vision/image_classification_efficientnet_fine_tuning/
+    #pretrained_model = tf.keras.applications.efficientnet.EfficientNetB0(input_shape=(IMG_COUNT,IMG_COUNT,3),weights='imagenet',include_top=False )
+    
+    
+    #pretrained_model = tf.keras.applications.efficientnet.EfficientNetB2(input_shape=(IMG_COUNT,IMG_COUNT,3),weights='imagenet',include_top=False )
+
+    pretrained_model.summary()
+    
     pretrained_model.trainable = False
 
     print(pretrained_model.output)
@@ -202,7 +201,6 @@ def create_model():
     
     optimizer = tf.keras.optimizers.RMSprop()
     loss = tf.keras.losses.CategoricalCrossentropy()
-    #metrics=[tf.keras.metrics.CategoricalAccuracy(),tf.keras.metrics.TruePositives(),tf.keras.metrics.FalseNegatives()],
     metrics=['accuracy'],
 
     model.compile(optimizer=optimizer,loss=loss,metrics=metrics)
@@ -217,12 +215,11 @@ def get_validation_predictions(train_data, predictions_valid):
     return pv
 
 
-def run_cross_validation_create_models(nfolds=10):
+def run_cross_validation_create_models():
     # input image dimensions
-    num_epoch = 20
-    random_state = 51   
+    num_epoch = 80
     X_train, Y_train, train_id = read_and_normalize_train_data()
-    X_train, X_valid, Y_train, Y_valid = train_test_split(X_train, Y_train, test_size=0.2, random_state=42)
+    X_train, X_valid, Y_train, Y_valid = train_test_split(X_train, Y_train, test_size=0.2, random_state=random_state)
     
     model = create_model()
     
@@ -236,8 +233,9 @@ def run_cross_validation_create_models(nfolds=10):
         callbacks=[callback]
     )
     #test data 
-    X_test, Y_test = read_and_normalize_test_data()
-    validate_generator = DataGenerator(X_test, Y_test, 4)
+    Y_test = Y_valid
+    #X_test, Y_test = read_and_normalize_test_data()
+    #validate_generator = DataGenerator(X_test, Y_test, 4)
     results = model.evaluate(validate_generator)
     predictions = model.predict(validate_generator)
 
@@ -251,6 +249,5 @@ def run_cross_validation_create_models(nfolds=10):
 
 if __name__ == '__main__':
     print('Keras version: {}'.format(keras_version))
-    num_folds = 7
-    run_cross_validation_create_models(num_folds)
+    run_cross_validation_create_models()
     #run_cross_validation_process_test(info_string, models)

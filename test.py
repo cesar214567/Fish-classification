@@ -2,7 +2,6 @@ import torch
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix,classification_report
 import numpy as np
-import torchvision.models as models
 print(torch.version.cuda)
 print(torch.cuda.is_available())
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -26,5 +25,4 @@ print(T4)
 #print(np.sum(T3.numpy()))
 
 #print(classification_report(T4, T5,target_names=['0','1']))
-model = models.vgg19(pretrained=False).to(device)
 

@@ -1,6 +1,6 @@
 import numpy as np
-#np.random.seed(2016)
-
+np.random.seed(2022)
+seed = 2022
 import ctypes
 ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudart64_110.dll')
 ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublas64_11.dll')
@@ -29,9 +29,8 @@ from keras.utils import np_utils
 from sklearn.metrics import confusion_matrix, log_loss
 from keras import __version__ as keras_version
 from sklearn.model_selection import train_test_split
-import torch
 import tensorflow as tf
-
+import matplotlib.pyplot as plt
 import numpy as np
 from keras_dataloader.datagenerator import DataGenerator
                                                 
@@ -39,8 +38,8 @@ print('GPU name: ', tf.config.experimental.list_physical_devices('GPU'))
 device_name = tf.test.gpu_device_name()
 print(device_name)
 random_state = 42
-columns=['ALB','BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
-#columns = ['MugilCephalus','RhinobatosCemiculus','ScomberJaponicus','TetrapturusBelone']
+#columns=['ALB','BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
+columns = ['MugilCephalus','RhinobatosCemiculus','ScomberJaponicus','TetrapturusBelone','Trout']
 IMG_COUNT = 224
 IMG_SIZE = (IMG_COUNT, IMG_COUNT)
 #print("device is: ",device)
@@ -56,8 +55,8 @@ def load_train():
     for fld in columns:
         index = columns.index(fld)
         print('Load folder {} (Index: {})'.format(fld, index))
-        path = os.path.join('.','NatureConservancy', 'train', fld, '*.jpg')
-        #path = os.path.join('.','FishSpecies', 'Training_Set', fld, '*.jpg')
+        #path = os.path.join('.','NatureConservancy', 'train', fld, '*.jpg')
+        path = os.path.join('.','FishSpecies', 'train', fld, '*.jpg')
         files = glob.glob(path)
         for fl in files:
             #print(fl)
@@ -85,8 +84,8 @@ def load_test():
     for fld in columns:
         index = columns.index(fld)
         print('Load folder {} (Index: {})'.format(fld, index))
-        path = os.path.join('.','NatureConservancy', 'train', fld, '*.jpg')
-        #path = os.path.join('.','FishSpecies', 'Test_Set', fld, '*.jpg')
+        #path = os.path.join('.','NatureConservancy', 'train', fld, '*.jpg')
+        path = os.path.join('.','FishSpecies', 'test', fld, '*.jpg')
         files = glob.glob(path)
         for fl in files:
             #print(fl)
@@ -116,13 +115,12 @@ def read_and_normalize_train_data():
     train_data, train_target, train_id = load_train()
 
     print('Convert to numpy...')
-    train_data = np.array(train_data, dtype=np.uint8)
+    train_data = np.array(train_data, dtype=np.float32)
     train_target = np.array(train_target, dtype=np.uint8)
     #print('Reshape...')
     #train_data = train_data.transpose((0, 3, 1, 2))
 
     print('Convert to float...')
-    train_data = train_data.astype('float32')
     #train_data = train_data / 255
     train_target = np_utils.to_categorical(train_target, len(columns))
 
@@ -135,14 +133,13 @@ def read_and_normalize_test_data():
     start_time = time.time()
     test_data, test_id = load_test()
 
-    X_test = np.array(test_data, dtype=np.uint8)
+    X_test = np.array(test_data, dtype=np.float32)
     test_id = np.array(test_id, dtype=np.uint8)
     #create one hot encoding
     Y_test = np_utils.to_categorical(test_id, len(columns))
 
     #X_test = X_test.transpose((0, 3, 1, 2))
 
-    X_test = X_test.astype('float32')
     #X_test = X_test / 255
 
     print('Test shape:', X_test.shape)
@@ -167,19 +164,31 @@ def merge_several_folds_mean(data, nfolds):
     a /= nfolds
     return a.tolist()
 
-def create_model(): 
-    #tf.keras.applications.efficientnet.EfficientNetB0(include_top=True).summary()
-    #pretrained_model = tf.keras.applications.VGG19(input_shape=(244,244,3),weights='imagenet',include_top=False )
-    #pretrained_model = tf.keras.applications.resnet.ResNet50(input_shape=(244,244,3),weights='imagenet',include_top=False )
-    #pretrained_model = tf.keras.applications.inception_v3.InceptionV3(input_shape=(244,244,3),weights='imagenet',include_top=False )
-    #pretrained_model = tf.keras.applications.mobilenet_v2.MobileNetV2(input_shape=(244,244,3),weights='imagenet',include_top=False )
-    pretrained_model = tf.keras.applications.mobilenet.MobileNet(input_shape=(244,244,3),weights='imagenet',include_top=False )
-    #for efficientnets pls check: https://keras.io/examples/vision/image_classification_efficientnet_fine_tuning/
-    #pretrained_model = tf.keras.applications.efficientnet.EfficientNetB0(input_shape=(IMG_COUNT,IMG_COUNT,3),weights='imagenet',include_top=False )
-    
-    
-    #pretrained_model = tf.keras.applications.efficientnet.EfficientNetB2(input_shape=(IMG_COUNT,IMG_COUNT,3),weights='imagenet',include_top=False )
+def get_vgg19(): 
+    return tf.keras.applications.VGG19(input_shape=(IMG_COUNT,IMG_COUNT,3),weights='imagenet',include_top=False )
 
+def get_resnet50(): 
+    return tf.keras.applications.resnet.ResNet50(input_shape=(IMG_COUNT,IMG_COUNT,3),weights='imagenet',include_top=False )
+
+def get_inceptionv3(): 
+    return tf.keras.applications.inception_v3.InceptionV3(input_shape=(299,299,3),weights='imagenet',include_top=False )
+
+def get_mobilenetV2(): 
+    return tf.keras.applications.mobilenet_v2.MobileNetV2(input_shape=(IMG_COUNT,IMG_COUNT,3),weights='imagenet',include_top=False )
+
+def get_mobilenetV1(): 
+    return tf.keras.applications.mobilenet.MobileNet(input_shape=(IMG_COUNT,IMG_COUNT,3),weights='imagenet',include_top=False )
+    
+def get_xception(): 
+    return tf.keras.applications.xception.Xception(input_shape=(IMG_COUNT,IMG_COUNT,3),weights='imagenet',include_top=False )
+
+def get_efficientnetb0(): 
+    return tf.keras.applications.efficientnet.EfficientNetB0(input_shape=(IMG_COUNT,IMG_COUNT,3),weights='imagenet',include_top=False )
+
+
+
+def create_model(pretrained_model): 
+    
     pretrained_model.summary()
     
     pretrained_model.trainable = False
@@ -205,7 +214,7 @@ def create_model():
 
     model.compile(optimizer=optimizer,loss=loss,metrics=metrics)
 
-    return model
+    return pretrained_model.name, model
 
 
 def get_validation_predictions(train_data, predictions_valid):
@@ -214,28 +223,76 @@ def get_validation_predictions(train_data, predictions_valid):
         pv.append(predictions_valid[i])
     return pv
 
+def display_plot_per_history(histories):
+    # summarize history for accuracy
+    for name, history in histories:
+        plt.plot(history.history['accuracy'])
+        plt.plot(history.history['val_accuracy'])
+        plt.title(f'accuracy for {name} over epochs')
+        plt.ylabel('accuracy')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'], loc='lower right')
+        plt.savefig(os.path.join('results','FishSpecies','graphs',f'accuracy{name}.png'))
+        
+        plt.clf() 
+        # summarize history for loss
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title(f'loss for {name} over epochs')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'], loc='upper right')
+        plt.savefig(os.path.join('results','FishSpecies','graphs',f'loss{name}.png'))
+        plt.clf()
 
-def run_cross_validation_create_models():
+def display_plot_for_histories(histories):
+    # summarize history for accuracy
+    for name,history in histories:
+        plt.plot(history.history['accuracy'])
+    plt.title('models training accuracy over epochs')
+    plt.ylabel('training accuracy')
+    plt.xlabel('epoch')
+    plt.legend([name for name,history in histories], loc='lower right')
+    plt.savefig(os.path.join('results','FishSpecies','general_graphs','accuracy.png'))
+    plt.clf() 
+    # summarize history for loss
+    for name,history in histories:
+        plt.plot(history.history['loss'])
+    plt.title('models training loss over epochs ')
+    plt.ylabel('training loss')
+    plt.xlabel('epoch')
+    plt.legend([name for name,history in histories],loc='upper right')
+    plt.savefig(os.path.join('results','FishSpecies','general_graphs','loss.png'))
+    plt.clf() 
+
+def run_cross_validation_create_models(pretrained_model,X_train,Y_train,X_valid,Y_valid,X_test,Y_test):
     # input image dimensions
+    
     num_epoch = 80
-    X_train, Y_train, train_id = read_and_normalize_train_data()
-    X_train, X_valid, Y_train, Y_valid = train_test_split(X_train, Y_train, test_size=0.2, random_state=random_state)
     
-    model = create_model()
     
-    train_generator = DataGenerator(X_train,Y_train, 4)
-    validate_generator = DataGenerator(X_valid,Y_valid, 4)
-    callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
+    #X_train, Y_train, train_id = read_and_normalize_train_data()
+    #X_train, X_valid, Y_train, Y_valid = train_test_split(X_train, Y_train, test_size=0.2, random_state=random_state)
+
+    name, model = create_model(pretrained_model)
+    
+    train_generator = DataGenerator(X_train,Y_train, 8)
+    validate_generator = DataGenerator(X_valid,Y_valid, 8)
+    logs_path = os.path.join('results','FishSpecies','info')
+    csv_logger = tf.keras.callbacks.CSVLogger(os.path.join(logs_path,f'logs_{name}.csv'), append=False, separator=';')
+    callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3,min_delta=0.01)
     history = model.fit(
         train_generator,
         epochs=num_epoch,
         validation_data=validate_generator,
-        callbacks=[callback]
+        callbacks=[callback,csv_logger]
     )
     #test data 
-    Y_test = Y_valid
+    #Y_test = Y_valid
     #X_test, Y_test = read_and_normalize_test_data()
-    #validate_generator = DataGenerator(X_test, Y_test, 4)
+    validate_generator = DataGenerator(X_test, Y_test, 8)
+    
+    
     results = model.evaluate(validate_generator)
     predictions = model.predict(validate_generator)
 
@@ -246,8 +303,32 @@ def run_cross_validation_create_models():
     print("aciertos: ",np.trace(conf_matrix))
     print("total: ",np.sum(conf_matrix))
     print("test loss, test acc:", results)
+    with open(os.path.join(logs_path,f'test_info_{name}.txt'), 'w') as f:
+        f.write(np.array2string(confusion_matrix(Y_test,predictions_labels), separator=', '))
+        
+        f.write(f'\naciertos: {np.trace(conf_matrix)}\n')
+        f.write(f'total: {np.sum(conf_matrix)}\n')
+        f.write(f'test loss, test acc: {results}\n' )
+        
+    return name,history
 
 if __name__ == '__main__':
     print('Keras version: {}'.format(keras_version))
-    run_cross_validation_create_models()
+    models = [get_vgg19,get_resnet50,get_inceptionv3,get_mobilenetV2,get_mobilenetV1,get_xception,get_efficientnetb0]
+    #models=[get_vgg19]
+    histories = []
+    X_train, Y_train, train_id = read_and_normalize_train_data()    
+    X_train, X_valid, Y_train, Y_valid = train_test_split(X_train, Y_train, test_size=0.2, random_state=random_state)
+    
+    X_test, Y_test = read_and_normalize_test_data()
+
+    for model in models:
+        name, history = run_cross_validation_create_models(model(),X_train,Y_train,X_valid,Y_valid,X_test,Y_test)
+        histories.append((name,history))
+        tf.keras.backend.clear_session()
+
+    display_plot_per_history(histories)
+    display_plot_for_histories(histories)
+    
+
     #run_cross_validation_process_test(info_string, models)

@@ -1,4 +1,4 @@
-import torch
+'''import torch
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix,classification_report
 import numpy as np
@@ -25,4 +25,26 @@ print(T4)
 #print(np.sum(T3.numpy()))
 
 #print(classification_report(T4, T5,target_names=['0','1']))
+'''
+import os
+from pathlib import Path
+import imghdr
 
+def check_images_types(dir):
+	image_extensions = [".png", ".jpg"]  # add there all your images file extensions
+
+	img_type_accepted_by_tf = ["bmp", "gif", "jpeg", "png"]
+	for filepath in Path(dir).rglob("*"):
+		if filepath.suffix.lower() in image_extensions:
+			img_type = imghdr.what(filepath)
+			if img_type is None:
+				print(f"{filepath} is not an image")
+			elif img_type not in img_type_accepted_by_tf:
+				print(f"{filepath} is a {img_type}, not accepted by TensorFlow")
+
+
+train_dir = os.path.join('FishSpecies','train')
+test_dir = os.path.join('FishSpecies','test')
+
+check_images_types(train_dir)
+check_images_types(test_dir)

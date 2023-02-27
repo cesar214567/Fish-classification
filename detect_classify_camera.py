@@ -1,20 +1,20 @@
 import argparse
 import numpy as np
-import ctypes
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudart64_110.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublas64_11.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublasLt64_11.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cufft64_10.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\curand64_10.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cusolver64_11.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cusparse64_11.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn64_8.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_infer64_8.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_train64_8.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_cnn_train64_8.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_train64_8.dll')
+#import ctypes
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudart64_110.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublas64_11.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublasLt64_11.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cufft64_10.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\curand64_10.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cusolver64_11.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cusparse64_11.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn64_8.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_infer64_8.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_train64_8.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_cnn_train64_8.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_train64_8.dll')
 import tensorflow as tf
 import cv2
 
@@ -71,8 +71,13 @@ COLORS = np.random.uniform(0, 255, size=(len(columns), 3))
 
 
 model = tf.keras.models.load_model(os.path.abspath('model.h5'))
-
-net = cv2.dnn.readNet(args.weights, args.config)
+type = ""
+if args.weights.endswith('.onnx'):
+    net = cv2.dnn.readNet(args.weights)
+    type = "ONNX"
+elif args.weights.endswith('.weights'):
+    net = cv2.dnn.readNet(args.weights, args.config)
+    type = "WEIGHTS"
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
 
@@ -93,9 +98,10 @@ boxes = []
 
 def map_boxes(detection):
     scores = detection[5:]
+    confidence =detection[4]
     class_id = np.argmax(scores)
-    confidence = scores[class_id]
-    if confidence > 0.00:
+    if confidence > 0.4:
+        confidence = scores[class_id]
         center_x = int(detection[0] * Width)
         center_y = int(detection[1] * Height)
         w = int(detection[2] * Width)
@@ -114,18 +120,27 @@ while True:
         class_ids = []
         confidences = []
         boxes = []
-        #blob = cv2.dnn.blobFromImage(image, scale, (1280,704), [0,0,0],1, crop=False)
-        blob = cv2.dnn.blobFromImage(image, scale, (800,608), [0,0,0],1, crop=False)
-        #blob = cv2.dnn.blobFromImage(image, scale, (384,288), [0,0,0],1, crop=False)
         Width = image.shape[1]
-        Height = image.shape[0]
+        Height = image.shape[0] 
+        if type=="WEIGHTS":
+            #blob = cv2.dnn.blobFromImage(image, scale, (1280,704), [0,0,0],1, crop=False)
+            blob = cv2.dnn.blobFromImage(image, scale, (800,608), [0,0,0],1, crop=False)
+            #blob = cv2.dnn.blobFromImage(image, scale, (384,288), [0,0,0],1, crop=False)
+        elif type=="ONNX":    
+            Width = Width/640.
+            Height = Height/640.
+            blob = cv2.dnn.blobFromImage(image, scale, (640,640), [0,0,0],1, crop=False)
+
+        
+        
         net.setInput(blob)
 
         outs = net.forward(net.getUnconnectedOutLayersNames())
         
-        
-        for detection in outs[0]:
+        for detection in outs[0][0]:
+            #print(detection )
             map_boxes(detection)
+            
         indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
         fish_info = []
         fish_images = []
@@ -169,7 +184,7 @@ while True:
                 confidence = confidences[i]
                 draw_prediction(image,color, label, confidence, x, y, x+w, y+h)
         
-        image = cv2.resize(image, (1200,800), interpolation = cv2.INTER_LINEAR)
+        #image = cv2.resize(image, (1200,800), interpolation = cv2.INTER_LINEAR)
         cv2.imshow('img', image)
         if cv2.waitKey(60) & 0xff == ord('q'):
             cv2.destroyAllWindows()

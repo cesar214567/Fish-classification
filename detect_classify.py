@@ -3,21 +3,21 @@ import argparse
 import numpy as np
 from operator import itemgetter 
 
-import ctypes
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudart64_110.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublas64_11.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublasLt64_11.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cufft64_10.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\curand64_10.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cusolver64_11.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cusparse64_11.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn64_8.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_infer64_8.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_train64_8.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_cnn_train64_8.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
-ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_train64_8.dll')
+#import ctypes
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudart64_110.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublas64_11.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublasLt64_11.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cufft64_10.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\curand64_10.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cusolver64_11.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cusparse64_11.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn64_8.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_infer64_8.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_train64_8.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_cnn_train64_8.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
+#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_train64_8.dll')
 import tensorflow as tf
 
 IMG_SIZE = (224,224)
@@ -66,16 +66,28 @@ COLORS = np.random.uniform(0, 255, size=(len(columns), 3))
 print(COLORS)
 
 model = tf.keras.models.load_model('model.h5')
-
-net = cv2.dnn.readNet(args.weights, args.config)
+type = ""
+if args.weights.endswith('.onnx'):
+    net = cv2.dnn.readNet(args.weights)
+    type = "ONNX"
+elif args.weights.endswith('.weights'):
+    net = cv2.dnn.readNet(args.weights, args.config)
+    type = "WEIGHTS"
 
 SIZE = 1280
 #SIZE = 224
-#blob = cv2.dnn.blobFromImage(image, scale, (1280,704), [0,0,0],1, crop=False)
-blob = cv2.dnn.blobFromImage(image, scale, (800,608), [0,0,0],1, crop=False)
-#blob = cv2.dnn.blobFromImage(image, scale, (384,288), [0,0,0],1, crop=False)
 Width = image.shape[1]
-Height = image.shape[0]
+Height = image.shape[0] 
+if type=="WEIGHTS":
+    #blob = cv2.dnn.blobFromImage(image, scale, (1280,704), [0,0,0],1, crop=False)
+    blob = cv2.dnn.blobFromImage(image, scale, (800,608), [0,0,0],1, crop=False)
+    #blob = cv2.dnn.blobFromImage(image, scale, (384,288), [0,0,0],1, crop=False)
+elif type=="ONNX":    
+    Width = Width/640.
+    Height = Height/640.
+    blob = cv2.dnn.blobFromImage(image, scale, (640,640), [0,0,0],1, crop=False)
+
+        
 net.setInput(blob)
 
 outs = net.forward(net.getUnconnectedOutLayersNames())
@@ -84,29 +96,37 @@ class_ids = []
 confidences = []
 boxes = []
 conf_threshold = 0
-nms_threshold = 0.3
+nms_threshold = 0.6
 #nms_threshold = 0.9
 #conf_threshold = 0.5
 #nms_threshold = 0.45
+def relu(x):
+    return max(0.0, x)
 
 
-for out in outs:
-    for detection in out:
-        scores = detection[5:]
-        class_id = np.argmax(scores)
+def map_boxes(detection):
+    scores = detection[5:]
+    confidence =detection[4]
+    class_id = np.argmax(scores)
+    if confidence > 0.1:
         confidence = scores[class_id]
-        if confidence > 0.00:
-            center_x = int(detection[0] * Width)
-            center_y = int(detection[1] * Height)
-            w = int(detection[2] * Width)
-            h = int(detection[3] * Height)
-            x = center_x - w / 2
-            y = center_y - h / 2
-            class_ids.append(class_id)
-            confidences.append(float(confidence))
-            boxes.append([x, y, w, h])
+        
+        center_x = int(detection[0] * Width)
+        center_y = int(detection[1] * Height)
+        w = int(relu(detection[2] * Width))
+        h = int(relu(detection[3] * Height))
+        x = int(relu(center_x - w / 2))
+        y = int(relu(center_y - h / 2))
+        class_ids.append(class_id)
+        confidences.append(float(confidence))
+        boxes.append([x, y, w, h])
 
-#print(len(boxes))
+if type=="ONNX":
+    outs=outs[0]
+
+for detection in outs[0]:
+    map_boxes(detection)
+    
 indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
 fish_info = []
 fish_images = []
@@ -125,7 +145,7 @@ for i in indices:
     label = str(classes[class_id])
 
 
-    if(label == "Fish"):
+    if("Fish" in label):
         fish_image = image[y:y+h,x:x+w]
         fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_LINEAR)
         fish_image = fish_image.reshape(224,224,3)

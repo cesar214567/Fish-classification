@@ -1,0 +1,159 @@
+import cv2
+import argparse
+import numpy as np
+from operator import itemgetter 
+
+import ctypes
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudart64_110.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublas64_11.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublasLt64_11.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cufft64_10.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\curand64_10.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cusolver64_11.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cusparse64_11.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn64_8.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_infer64_8.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_train64_8.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_cnn_train64_8.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_train64_8.dll')
+import tensorflow as tf
+
+IMG_SIZE = (224,224)
+print('GPU name: ', tf.config.experimental.list_physical_devices('GPU'))
+device_name = tf.test.gpu_device_name()
+print(device_name)
+
+gpus = tf.config.experimental.list_physical_devices('GPU')
+for gpu in gpus: 
+    tf.config.experimental.set_memory_growth(gpu, True)
+
+ap = argparse.ArgumentParser()
+ap.add_argument('-i', '--image', required=True,
+                help = 'path to input image')
+ap.add_argument('-c', '--config', required=True,
+                help = 'path to yolo config file')
+ap.add_argument('-w', '--weights', required=True,
+                help = 'path to yolo pre-trained weights')
+ap.add_argument('-cl', '--classes', required=True,
+                help = 'path to text file containing class names')
+args = ap.parse_args()
+
+def draw_prediction(img, color, label , confidence, x, y, x_plus_w, y_plus_h):
+
+    label = label + str(confidence)
+
+    cv2.rectangle(img, (x,y), (x_plus_w,y_plus_h), color, 2)
+
+    cv2.putText(img, label, (x-10,y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+
+    
+image = cv2.imread(args.image)
+
+
+scale = 1.0/255
+
+classes = None
+
+with open(args.classes, 'r') as f:
+    classes = [line.strip() for line in f.readlines()]
+
+columns=np.array(['ALB','BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT'])
+#COLORS = np.random.uniform(0, 255, size=(len(classes), 3))
+COLORS = np.random.uniform(0, 255, size=(len(columns), 3))
+
+print(COLORS)
+
+model = tf.keras.models.load_model('model.h5')
+
+net = cv2.dnn.readNet(args.weights, args.config)
+
+SIZE = 1280
+#SIZE = 224
+#blob = cv2.dnn.blobFromImage(image, scale, (1280,704), [0,0,0],1, crop=False)
+blob = cv2.dnn.blobFromImage(image, scale, (800,608), [0,0,0],1, crop=False)
+#blob = cv2.dnn.blobFromImage(image, scale, (384,288), [0,0,0],1, crop=False)
+Width = image.shape[1]
+Height = image.shape[0]
+net.setInput(blob)
+
+outs = net.forward(net.getUnconnectedOutLayersNames())
+
+class_ids = []
+confidences = []
+boxes = []
+conf_threshold = 0
+nms_threshold = 0.3
+#nms_threshold = 0.9
+#conf_threshold = 0.5
+#nms_threshold = 0.45
+
+
+for out in outs:
+    for detection in out:
+        scores = detection[5:]
+        class_id = np.argmax(scores)
+        confidence = scores[class_id]
+        if confidence > 0.00:
+            center_x = int(detection[0] * Width)
+            center_y = int(detection[1] * Height)
+            w = int(detection[2] * Width)
+            h = int(detection[3] * Height)
+            x = center_x - w / 2
+            y = center_y - h / 2
+            class_ids.append(class_id)
+            confidences.append(float(confidence))
+            boxes.append([x, y, w, h])
+
+#print(len(boxes))
+indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
+fish_info = []
+fish_images = []
+for i in indices:
+    try:
+        box = boxes[i]
+    except:
+        i = i[0]
+        box = boxes[i]
+
+    x = round(box[0])
+    y = round(box[1])
+    w = round(box[2])
+    h = round(box[3])
+    class_id = class_ids[i]
+    label = str(classes[class_id])
+
+
+    if(label == "Fish"):
+        fish_image = image[y:y+h,x:x+w]
+        fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_LINEAR)
+        fish_image = fish_image.reshape(224,224,3)
+        fish_images.append(fish_image)
+        fish_info.append({"index":i,"x":x,"y":y,"w":w,"h":h})
+    else:
+        confidence = round(confidences[i],2)
+        draw_prediction(image,[0,0,0], label, confidence, x, y, x+w, y+h)
+
+
+if len(fish_images)!=0:
+    fish_images = np.array(fish_images).reshape(len(fish_images),224,224,3)
+    prediction = model.predict(fish_images)
+    fish_ids = np.argmax(prediction,axis=1)
+    labels = columns[fish_ids]
+    colors = COLORS[fish_ids]
+    confidences = np.round(np.max(prediction,axis=1),decimals=2)
+    for i,info in enumerate(fish_info):
+        index,x,y,w,h = info['index'],info['x'],info['y'],info['w'],info['h']
+        label = labels[i]
+        color = colors[i]
+        confidence = confidences[i]
+        draw_prediction(image,color, label, confidence, x, y, x+w, y+h)
+
+image = cv2.resize(image, (1200,800), interpolation = cv2.INTER_LINEAR)
+
+cv2.imshow("object detection", image)
+cv2.waitKey()
+    
+cv2.imwrite("object-detection.jpg", image)
+cv2.destroyAllWindows()

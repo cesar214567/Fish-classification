@@ -63,7 +63,6 @@ columns=np.array(['ALB','BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT'])
 #COLORS = np.random.uniform(0, 255, size=(len(classes), 3))
 COLORS = np.random.uniform(0, 255, size=(len(columns), 3))
 
-print(COLORS)
 
 model = tf.keras.models.load_model('model.h5')
 type = ""
@@ -73,7 +72,8 @@ if args.weights.endswith('.onnx'):
 elif args.weights.endswith('.weights'):
     net = cv2.dnn.readNet(args.weights, args.config)
     type = "WEIGHTS"
-
+net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
 SIZE = 1280
 #SIZE = 224
 Width = image.shape[1]
@@ -108,8 +108,8 @@ def map_boxes(detection):
     scores = detection[5:]
     confidence =detection[4]
     class_id = np.argmax(scores)
-    if confidence > 0.1:
-        confidence = scores[class_id]
+    if confidence > 0.05:
+        #confidence = scores[class_id]
         
         center_x = int(detection[0] * Width)
         center_y = int(detection[1] * Height)

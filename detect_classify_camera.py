@@ -82,7 +82,7 @@ net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
 
 conf_threshold = 0
-nms_threshold = 0.6
+nms_threshold = 0.3
 #nms_threshold = 0.9
 #conf_threshold = 0.5
 #nms_threshold = 0.45
@@ -136,8 +136,10 @@ while True:
         net.setInput(blob)
 
         outs = net.forward(net.getUnconnectedOutLayersNames())
-        
-        for detection in outs[0][0]:
+        if type=="ONNX":
+            outs=outs[0]
+
+        for detection in outs[0]:
             #print(detection )
             map_boxes(detection)
             

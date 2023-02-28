@@ -1,11 +1,5 @@
-<<<<<<< HEAD
 import cv2
 import argparse
-=======
-'''import torch
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import confusion_matrix,classification_report
->>>>>>> 4b471a066cc76698a4c94a4446a108b736ae14f7
 import numpy as np
 from operator import itemgetter 
 
@@ -114,14 +108,6 @@ while True:
 
 
 
-<<<<<<< HEAD
-=======
-#print(classification_report(T4, T5,target_names=['0','1']))
-'''
-import os
-from pathlib import Path
-import imghdr
->>>>>>> 4b471a066cc76698a4c94a4446a108b736ae14f7
 
 def check_images_types(dir):
 	image_extensions = [".png", ".jpg"]  # add there all your images file extensions

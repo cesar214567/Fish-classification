@@ -2,22 +2,23 @@ import cv2
 import argparse
 import numpy as np
 from operator import itemgetter 
+from utils import generate_data_csv,f1_m,precision_m, recall_m
 
-#import ctypes
-#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudart64_110.dll')
-#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublas64_11.dll')
-#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublasLt64_11.dll')
-#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cufft64_10.dll')
-#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\curand64_10.dll')
-#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cusolver64_11.dll')
-#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cusparse64_11.dll')
-#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn64_8.dll')
-#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_infer64_8.dll')
-#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_train64_8.dll')
-#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
-#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_cnn_train64_8.dll')
-#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
-#ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_train64_8.dll')
+import ctypes
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudart64_110.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublas64_11.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cublasLt64_11.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cufft64_10.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\curand64_10.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cusolver64_11.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cusparse64_11.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn64_8.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_infer64_8.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_adv_train64_8.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_cnn_train64_8.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_infer64_8.dll')
+ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_train64_8.dll')
 import tensorflow as tf
 
 IMG_SIZE = (224,224)
@@ -59,12 +60,12 @@ classes = None
 with open(args.classes, 'r') as f:
     classes = [line.strip() for line in f.readlines()]
 
-columns=np.array(['ALB','BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT'])
+columns=np.array(['ALB','BET', 'DOL', 'LAG', 'OTHER', 'SHARK', 'YFT'])
 #COLORS = np.random.uniform(0, 255, size=(len(classes), 3))
 COLORS = np.random.uniform(0, 255, size=(len(columns), 3))
 
 
-model = tf.keras.models.load_model('model.h5')
+model = tf.keras.models.load_model('model.h5',custom_objects={"f1_m":f1_m,"precision_m":precision_m, "recall_m":recall_m})
 type = ""
 if args.weights.endswith('.onnx'):
     net = cv2.dnn.readNet(args.weights)
@@ -95,8 +96,9 @@ outs = net.forward(net.getUnconnectedOutLayersNames())
 class_ids = []
 confidences = []
 boxes = []
-conf_threshold = 0
-nms_threshold = 0.6
+conf_threshold = 0.02
+nms_threshold = 0.05
+fish_conf_threshold = 0.4
 #nms_threshold = 0.9
 #conf_threshold = 0.5
 #nms_threshold = 0.45
@@ -108,8 +110,8 @@ def map_boxes(detection):
     scores = detection[5:]
     confidence =detection[4]
     class_id = np.argmax(scores)
-    if confidence > 0.05:
-        #confidence = scores[class_id]
+    if confidence > conf_threshold:
+        confidence = scores[class_id]
         
         center_x = int(detection[0] * Width)
         center_y = int(detection[1] * Height)
@@ -141,16 +143,28 @@ for i in indices:
     y = round(box[1])
     w = round(box[2])
     h = round(box[3])
+    x = round(x - w*0.3)
+    y = round(y - h*0.3)
+    w = round(w+w*0.6)
+    h = round(h+h*0.6)
     class_id = class_ids[i]
     label = str(classes[class_id])
 
 
-    if("Fish" in label):
+    if(("Fish" in label or "Seafood" in label )and confidences[i] >= fish_conf_threshold):
+        
         fish_image = image[y:y+h,x:x+w]
         fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_LINEAR)
+        #fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_AREA)
+        #fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_NEAREST)
+        #fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_CUBIC)
+        #fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_LANCZOS4)
         fish_image = fish_image.reshape(224,224,3)
         fish_images.append(fish_image)
         fish_info.append({"index":i,"x":x,"y":y,"w":w,"h":h})
+        print(label,confidences[i])
+        draw_prediction(image,[0,0,0], label, confidences[i], x, y, x+w, y+h)
+
     else:
         confidence = round(confidences[i],2)
         draw_prediction(image,[0,0,0], label, confidence, x, y, x+w, y+h)
@@ -168,7 +182,9 @@ if len(fish_images)!=0:
         label = labels[i]
         color = colors[i]
         confidence = confidences[i]
-        draw_prediction(image,color, label, confidence, x, y, x+w, y+h)
+        if confidence >= fish_conf_threshold:
+            draw_prediction(image,color, label, confidence, x, y, x+w, y+h)
+            print(label,confidence)
 
 image = cv2.resize(image, (1200,800), interpolation = cv2.INTER_LINEAR)
 

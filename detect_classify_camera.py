@@ -65,7 +65,7 @@ classes = None
 with open(args.classes, 'r') as f:
     classes = [line.strip() for line in f.readlines()]
 
-columns=np.array(['ALB','BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT'])
+columns=np.array(['ALB','BET', 'DOL', 'LAG', 'OTHER', 'SHARK', 'YFT'])
 #COLORS = np.random.uniform(0, 255, size=(len(classes), 3))
 COLORS = np.random.uniform(0, 255, size=(len(columns), 3))
 
@@ -81,7 +81,7 @@ elif args.weights.endswith('.weights'):
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
 
-conf_threshold = 0
+conf_threshold = 0.4
 nms_threshold = 0.3
 #nms_threshold = 0.9
 #conf_threshold = 0.5
@@ -100,7 +100,7 @@ def map_boxes(detection):
     scores = detection[5:]
     confidence =detection[4]
     class_id = np.argmax(scores)
-    if confidence > 0.4:
+    if confidence > conf_threshold:
         confidence = scores[class_id]
         center_x = int(detection[0] * Width)
         center_y = int(detection[1] * Height)
@@ -189,8 +189,8 @@ while True:
         #image = cv2.resize(image, (1200,800), interpolation = cv2.INTER_LINEAR)
         cv2.imshow('img', image)
         if cv2.waitKey(60) & 0xff == ord('q'):
-            cv2.destroyAllWindows()
             fps.stop()
+            cv2.destroyAllWindows()
             exit()
         fps.update()
     fps.stop()

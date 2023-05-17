@@ -24,9 +24,8 @@ import pandas as pd
 import time
 import warnings
 warnings.filterwarnings("ignore")
-from keras.utils import np_utils
-from sklearn.metrics import confusion_matrix, log_loss
-from keras import __version__ as keras_version
+from sklearn.metrics import confusion_matrix, log_loss,balanced_accuracy_score,recall_score,f1_score,accuracy_score
+#from keras import __version__ as keras_version
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -35,7 +34,8 @@ import numpy as np
 from keras_dataloader.datagenerator import DataGenerator
 
 from keras import backend as K
-from utils import f1_m,precision_m, recall_m
+from utils.utils import f1_m,precision_m, recall_m
+
 print('GPU name: ', tf.config.experimental.list_physical_devices('GPU'))
 device_name = tf.test.gpu_device_name()
 print(device_name)
@@ -103,46 +103,6 @@ def read_and_normalize_test_data(folder):
 
     return test_ds
 
-    '''test_ds = tf.keras.utils.image_dataset_from_directory(
-        path,
-        labels='inferred',
-        seed=seed,
-        image_size=(IMG_COUNT,IMG_COUNT),
-        batch_size=batch_size,
-        label_mode='categorical'
-    )
-    return test_ds
-    '''
-    
-    '''
-    plt.figure(figsize=(10, 10))
-    for images, labels in train_ds.take(1):
-        for i in range(9):
-            ax = plt.subplot(3, 3, i + 1)
-            plt.imshow(images[i].numpy().astype("uint8"))
-            plt.title(class_names[labels[i]])
-            plt.axis("off")
-        plt.show()
-    train_data, train_target, train_id = load_train()
-
-'''
-
-
-def dict_to_list(d):
-    ret = []
-    for i in d.items():
-        ret.append(i[1])
-    return ret
-
-
-
-def merge_several_folds_mean(data, nfolds):
-    a = np.array(data[0])
-    for i in range(1, nfolds):
-        a += np.array(data[i])
-    a /= nfolds
-    return a.tolist()
-
 
 
 def create_model(): 
@@ -159,7 +119,13 @@ def create_model():
     #pretrained_model = tf.keras.applications.efficientnet.EfficientNetB2(input_shape=(IMG_COUNT,IMG_COUNT,3),weights='imagenet',include_top=False )
     pretrained_model.summary()
     
-    pretrained_model.trainable = False
+    #pretrained_model.trainable = False
+    for i, layer in enumerate(pretrained_model.layers):
+        if (layer.name.startswith('block7')) and not isinstance(layer, tf.keras.layers.BatchNormalization):
+            print(i, layer.name)
+            layer.trainable = True
+        else:
+            layer.trainable = False 
 
     print(pretrained_model.output)
     layers = [1024,256,64,len(columns)]
@@ -243,9 +209,9 @@ def run_cross_validation_create_models():
     )
     display_plot_for_history(history)
     #test data 
-
-    predictions = model.predict(test_ds)
     model.save('model.h5')
+    predictions = model.predict(test_ds)
+    
 
     results = model.evaluate(test_ds)
 
@@ -258,12 +224,15 @@ def run_cross_validation_create_models():
     print("aciertos: ",np.trace(conf_matrix))
     print("total: ",np.sum(conf_matrix))
     print("test loss, test acc:", results)
+    print("accuracy score is: ",accuracy_score(Y_test,predictions_labels  ))
+    print("balanced accuracy score is: ",balanced_accuracy_score(Y_test,predictions_labels))
+    print("f1-weighted score is: ",f1_score(Y_test,predictions_labels,average='weighted'))
     conf_matrix = conf_matrix *100/ conf_matrix.astype(float).sum(axis=0)
     conf_matrix = np.round(conf_matrix,decimals=3)    
     print(conf_matrix)
     np.savetxt("conf_matrix.csv",conf_matrix,delimiter=",")
 
 if __name__ == '__main__':
-    print('Keras version: {}'.format(keras_version))
+    #print('Keras version: {}'.format(tf.keras.keras_version))
     run_cross_validation_create_models()
     #run_cross_validation_process_test(info_string, models)

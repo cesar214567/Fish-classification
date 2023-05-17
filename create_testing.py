@@ -6,7 +6,7 @@ import shutil
 import os
 import random
 import math
-from utils import copy_folder_to_array
+from utils.utils import copy_folder_to_array
 
 random.seed(42069)
 
@@ -40,8 +40,11 @@ for image_file in image_files:
     if dataset =="train":
         col = image_file.split('\\')[3]
         name = image_file.split('\\')[4]
-        cv2.imwrite(f'./testingPipeline/yolo/{col}/{name}', image)
+
+        cv2.imwrite(f'./testingPipeline/images/{col}/{name}', image)
+        shutil.copyfile(image_file.split('.jpg')[0]+'.txt' ,f'./testingPipeline/images/{col}/{name.split(".")[0]+".txt"}.')
     else:
         name = image_file.split('\\')[3]
-        cv2.imwrite(f'./testingPipeline/yolo/missing/{name}', image)
+        cv2.imwrite(f'./testingPipeline/images/missing/{name}', image)
+        shutil.copyfile(image_file.split('.jpg')[0]+'.txt' ,f'./testingPipeline/images/missing/{name.split(".")[0]+".txt"}.')
 

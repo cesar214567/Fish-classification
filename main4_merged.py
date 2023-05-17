@@ -22,7 +22,7 @@ import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
 from keras.utils import np_utils
-from sklearn.metrics import confusion_matrix, log_loss
+from sklearn.metrics import confusion_matrix, log_loss,balanced_accuracy_score,recall_score,f1_score,accuracy_score
 from keras import __version__ as keras_version
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
@@ -32,7 +32,7 @@ import numpy as np
 from keras_dataloader.datagenerator import DataGenerator
 
 from keras import backend as K
-from utils import generate_data_csv,f1_m,precision_m, recall_m
+from utils.utils import generate_data_csv,f1_m,precision_m, recall_m
 
 
 print('GPU name: ', tf.config.experimental.list_physical_devices('GPU'))
@@ -188,6 +188,9 @@ def run_cross_validation_create_models():
     print("aciertos: ",np.trace(conf_matrix))
     print("total: ",np.sum(conf_matrix))
     print("test loss, test acc:", results)
+    print("accuracy score is: ",accuracy_score(Y_test,predictions_labels  ))
+    print("balanced accuracy score is: ",balanced_accuracy_score(Y_test,predictions_labels))
+    print("f1-weighted score is: ",f1_score(Y_test,predictions_labels,average='weighted'))
     conf_matrix = conf_matrix *100/ conf_matrix.astype(float).sum(axis=0)
     conf_matrix = np.round(conf_matrix,decimals=3)
     print(conf_matrix)

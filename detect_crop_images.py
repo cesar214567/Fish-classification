@@ -2,7 +2,7 @@ import cv2
 import argparse
 import numpy as np
 from operator import itemgetter 
-from utils import generate_data_csv,f1_m,precision_m, recall_m
+from utils.utils import generate_data_csv,f1_m,precision_m, recall_m
 import glob
 import ctypes
 ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudart64_110.dll')
@@ -25,14 +25,27 @@ import os
 import math
 IMG_SIZE = (224,224)
 
+IMG_SIZE = (224,224)
+print('GPU name: ', tf.config.experimental.list_physical_devices('GPU'))
+device_name = tf.test.gpu_device_name()
+print(device_name)
+
+gpus = tf.config.experimental.list_physical_devices('GPU')
+for gpu in gpus: 
+    tf.config.experimental.set_memory_growth(gpu, True)
+
+
 ap = argparse.ArgumentParser()
 
-ap.add_argument('-c', '--config', required=True,
+ap.add_argument('-c', '--config', required=False,
                 help = 'path to yolo config file')
 ap.add_argument('-w', '--weights', required=True,
                 help = 'path to yolo pre-trained weights')
 ap.add_argument('-cl', '--classes', required=True,
                 help = 'path to text file containing class names')
+ap.add_argument('-out', '--output', required=True,
+                help = 'name of output folder')
+
 args = ap.parse_args()
 classes = None
 
@@ -63,10 +76,13 @@ SIZE = 1280
 #SIZE = 224
 conf_threshold = 0.02
 nms_threshold = 0.05
-fish_conf_threshold = 0.4
-#nms_threshold = 0.9
-#conf_threshold = 0.5
-#nms_threshold = 0.45
+#for yolov5 not trained 
+fish_conf_threshold = 0.15
+
+#for yolov5 trained
+#fish_conf_threshold = 0.95
+#fish_conf_threshold = 0.95
+
 
 def map_boxes(detection):
     scores = detection[5:]
@@ -90,14 +106,14 @@ def map_boxes(detection):
 
 for folder in columns: 
     try:
-        shutil.rmtree(f'./testingPipeline/cnn/{folder}')
-        os.mkdir(f'./testingPipeline/cnn/{folder}')
+        shutil.rmtree(f'./testingPipeline/{args.output}/{folder}')
+        os.mkdir(f'./testingPipeline/{args.output}/{folder}')
     except:
-        os.mkdir(f'./testingPipeline/cnn/{folder}')
+        os.mkdir(f'./testingPipeline/{args.output}/{folder}')
 
 counter = 0
 for col in columns:
-    for image_file in glob.glob(f'./testingPipeline/yolo/{col}/*.jpg'):
+    for image_file in glob.glob(f'./testingPipeline/images/{col}/*.jpg'):
         image = cv2.imread(image_file)
         print(image_file)
         image_name = image_file.replace('/','\\').split('\\')[4]
@@ -149,9 +165,10 @@ for col in columns:
             h = round(h+h*0.3)
             class_id = class_ids[i]
             label = str(classes[class_id])
-            if(label!="Fishing Rod" and ("Fish" in label or "Seafood" in label )and confidences[i] >= fish_conf_threshold):
+            if (args.weights.startswith("best") and confidences[i] >= fish_conf_threshold) or (label!="Fishing Rod" and ("Fish" in label or "Seafood" in label )and confidences[i] >= fish_conf_threshold):
+                print(counter,str(confidences[i]))
                 height,width, channels = image.shape
                 fish_image = image[y:min(height,y+h),x:min(width,x+w)]
                 #fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_LINEAR)
-                cv2.imwrite(f'./testingPipeline/cnn/{col}/{str(counter)}.jpg', fish_image)
+                cv2.imwrite(f'./testingPipeline/{args.output}/{col}/{str(counter)}.jpg', fish_image)
                 counter+=1

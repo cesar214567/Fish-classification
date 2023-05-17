@@ -2,7 +2,7 @@ import cv2
 import argparse
 import numpy as np
 from operator import itemgetter 
-from utils import generate_data_csv,f1_m,precision_m, recall_m
+from utils.utils import generate_data_csv,f1_m,precision_m, recall_m
 
 import ctypes
 ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudart64_110.dll')
@@ -143,16 +143,15 @@ for i in indices:
     y = round(box[1])
     w = round(box[2])
     h = round(box[3])
-    x = round(x - w*0.3)
-    y = round(y - h*0.3)
-    w = round(w+w*0.6)
-    h = round(h+h*0.6)
+    x = max(0,round(x - w*0.0))
+    y = max(0,round(y - h*0.0))
+    w = min(image.shape[1],round(w+w*0.0))
+    h = min(image.shape[0],round(h+h*0.0))
     class_id = class_ids[i]
     label = str(classes[class_id])
 
 
-    if(("Fish" in label or "Seafood" in label )and confidences[i] >= fish_conf_threshold):
-        
+    if (args.weights.startswith("best")  and confidences[i] >= fish_conf_threshold) or (label!="Fishing Rod" and ("Fish" in label or "Seafood" in label )and confidences[i] >= fish_conf_threshold):
         fish_image = image[y:y+h,x:x+w]
         fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_LINEAR)
         #fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_AREA)

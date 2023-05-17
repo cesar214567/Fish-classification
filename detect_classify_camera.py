@@ -17,6 +17,7 @@ import numpy as np
 #ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn_ops_train64_8.dll')
 import tensorflow as tf
 import cv2
+from utils.utils import generate_data_csv,f1_m,precision_m, recall_m
 
 import numpy as np
 import cv2
@@ -70,7 +71,7 @@ columns=np.array(['ALB','BET', 'DOL', 'LAG', 'OTHER', 'SHARK', 'YFT'])
 COLORS = np.random.uniform(0, 255, size=(len(columns), 3))
 
 
-model = tf.keras.models.load_model(os.path.abspath('model.h5'))
+model = tf.keras.models.load_model('model.h5',custom_objects={"f1_m":f1_m,"precision_m":precision_m, "recall_m":recall_m})
 type = ""
 if args.weights.endswith('.onnx'):
     net = cv2.dnn.readNet(args.weights)

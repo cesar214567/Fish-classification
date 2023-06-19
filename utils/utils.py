@@ -70,14 +70,18 @@ def get_folders_size(folder,columns=[]):
     
 def get_folders_cropped_images_size(folder, columns=[]):
     sum = 0
-    folders={}
+    folders=dict(zip(columns,[0]*len(columns)))
     for i in columns:
         folder_image_size = 0
         glob_path = f'{folder}{i}/*.txt'
         labels_paths = glob.glob(glob_path)
         for label_path in labels_paths:
             with open(label_path,'r') as f:
-                folder_image_size += len(f.readlines())
+                lines = f.readlines()
+                folder_image_size += len(lines)
+                if i == 'missing':
+                    for line in lines:
+                        folders[columns[int(line.split(' ')[0])]]+=1
         sum += folder_image_size
-        folders[i] = folder_image_size
+        folders[i] += folder_image_size
     return sum,folders

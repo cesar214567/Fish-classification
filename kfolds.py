@@ -18,11 +18,7 @@ ctypes.CDLL(r'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cudnn
 import numpy as np
 import pandas as pd
 import os
-<<<<<<< HEAD
 from sklearn.model_selection import StratifiedKFold
-=======
-from sklearn.model_selection import KFold, StratifiedKFold
->>>>>>> 727428bbbe4f5282cae7b835ee4e67cce0c06aa8
 import tensorflow as tf
 import numpy as np
 seed = 2022
@@ -34,11 +30,7 @@ import time
 import warnings
 warnings.filterwarnings("ignore")
 from keras.utils import np_utils
-<<<<<<< HEAD
 from sklearn.metrics import confusion_matrix,balanced_accuracy_score,recall_score,f1_score,accuracy_score
-=======
-from sklearn.metrics import confusion_matrix, log_loss
->>>>>>> 727428bbbe4f5282cae7b835ee4e67cce0c06aa8
 from keras import __version__ as keras_version
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
@@ -46,13 +38,9 @@ import matplotlib.pyplot as plt
 import csv
 import numpy as np
 from keras_dataloader.datagenerator import DataGenerator
-<<<<<<< HEAD
 from utils.utils import generate_data_csv
 
 
-=======
-from utils import generate_data_csv
->>>>>>> 727428bbbe4f5282cae7b835ee4e67cce0c06aa8
 print('GPU name: ', tf.config.experimental.list_physical_devices('GPU'))
 device_name = tf.test.gpu_device_name()
 print(device_name)
@@ -136,41 +124,26 @@ def predict(model,ds):
     print("total: ",np.sum(conf_matrix))
     print("test loss, test acc:", results)
     conf_matrix = conf_matrix / conf_matrix.astype(float).sum(axis=0)
-<<<<<<< HEAD
     return predictions_labels,conf_matrix,results
 
 def predict_and_save_results(model,train_ds,val_ds,k,results_writer):
     _,train_conf_matrix,results_train = predict(model,train_ds)
     predictions_labels,val_conf_matrix,results_val = predict(model,val_ds)
     Y_test = val_ds.classes
-=======
-    return conf_matrix,results
-
-def predict_and_save_results(model,train_ds,val_ds,k,results_writer):
-    train_conf_matrix,results_train = predict(model,train_ds)
-    val_conf_matrix,results_val = predict(model,val_ds)
->>>>>>> 727428bbbe4f5282cae7b835ee4e67cce0c06aa8
     with open(os.path.join('Kfolds',str(k),'test_info.txt'), 'w') as f:
         f.write(np.array2string(train_conf_matrix, separator=', '))
         f.write(f'train loss, train acc: {results_train}\n' )
         f.write(np.array2string(val_conf_matrix, separator=', '))
         f.write(f'train loss, train acc: {results_val}\n' )
-<<<<<<< HEAD
         f.write(f'accuracy score is: {accuracy_score(Y_test,predictions_labels)}')
         f.write(f'balanced accuracy score is: {balanced_accuracy_score(Y_test,predictions_labels)}')
         f.write(f'f1-weighted score is: {f1_score(Y_test,predictions_labels,average="weighted")}')
-=======
->>>>>>> 727428bbbe4f5282cae7b835ee4e67cce0c06aa8
     results_writer.writerow([str(k),str(results_train[0]),results_train[1],results_val[0],results_val[1]])
 
 
 
 #######################
-<<<<<<< HEAD
 generate_data_csv('NatureConservancyCropped',['train'])
-=======
-generate_data_csv('NatureConservancyCropped','train')
->>>>>>> 727428bbbe4f5282cae7b835ee4e67cce0c06aa8
 
 train_data = pd.read_csv('data.csv')
 Y = train_data[['label']]

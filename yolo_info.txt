@@ -1,0 +1,5 @@
+accuracy score is: 0.668918918918919
+balanced accuracy score is: 0.7299032537935692
+f1-weighted score is: 0.6835686369953851
+precision score is: 0.7608718208380371
+recall score is: 0.668918918918919

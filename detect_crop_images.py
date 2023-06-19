@@ -77,7 +77,7 @@ SIZE = 1280
 conf_threshold = 0.02
 nms_threshold = 0.05
 #for yolov5 not trained 
-fish_conf_threshold = 0.15
+fish_conf_threshold = 0.4
 
 #for yolov5 trained
 #fish_conf_threshold = 0.95
@@ -165,7 +165,7 @@ for col in columns:
             h = round(h+h*0.3)
             class_id = class_ids[i]
             label = str(classes[class_id])
-            if (args.weights.startswith("best") and confidences[i] >= fish_conf_threshold) or (label!="Fishing Rod" and ("Fish" in label or "Seafood" in label )and confidences[i] >= fish_conf_threshold):
+            if ("best" in args.weights and confidences[i] >= fish_conf_threshold) or (label!="Fishing Rod" and ("Fish" in label or "Seafood" in label )and confidences[i] >= fish_conf_threshold):
                 print(counter,str(confidences[i]))
                 height,width, channels = image.shape
                 fish_image = image[y:min(height,y+h),x:min(width,x+w)]

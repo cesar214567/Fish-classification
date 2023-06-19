@@ -39,6 +39,8 @@ ap.add_argument('-w', '--weights', required=True,
                 help = 'path to yolo pre-trained weights')
 ap.add_argument('-cl', '--classes', required=True,
                 help = 'path to text file containing class names')
+ap.add_argument('-expand', '--expand', required=True,
+                help = 'expand image?(for pretrained yolov5)')
 args = ap.parse_args()
 
 def draw_prediction(img, color, label , confidence, x, y, x_plus_w, y_plus_h):
@@ -96,9 +98,9 @@ outs = net.forward(net.getUnconnectedOutLayersNames())
 class_ids = []
 confidences = []
 boxes = []
-conf_threshold = 0.02
+conf_threshold = 0.2
 nms_threshold = 0.05
-fish_conf_threshold = 0.4
+fish_conf_threshold = 0.3
 #nms_threshold = 0.9
 #conf_threshold = 0.5
 #nms_threshold = 0.45
@@ -143,28 +145,26 @@ for i in indices:
     y = round(box[1])
     w = round(box[2])
     h = round(box[3])
-    x = max(0,round(x - w*0.0))
-    y = max(0,round(y - h*0.0))
-    w = min(image.shape[1],round(w+w*0.0))
-    h = min(image.shape[0],round(h+h*0.0))
+    if args.expand =='yes':
+        x = max(0,round(x - w*0.2))
+        y = max(0,round(y - h*0.2))
+        w = min(image.shape[1],round(w+w*0.4))
+        h = min(image.shape[0],round(h+h*0.4))
     class_id = class_ids[i]
     label = str(classes[class_id])
 
 
-    if (args.weights.startswith("best")  and confidences[i] >= fish_conf_threshold) or (label!="Fishing Rod" and ("Fish" in label or "Seafood" in label )and confidences[i] >= fish_conf_threshold):
+    if (("best" in args.weights and confidences[i] >= fish_conf_threshold) or (label!="Fishing Rod" and ("Fish" in label or "Seafood" in label )and confidences[i] >= fish_conf_threshold)):
+        print(label)
         fish_image = image[y:y+h,x:x+w]
         fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_LINEAR)
-        #fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_AREA)
-        #fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_NEAREST)
-        #fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_CUBIC)
-        #fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_LANCZOS4)
         fish_image = fish_image.reshape(224,224,3)
         fish_images.append(fish_image)
         fish_info.append({"index":i,"x":x,"y":y,"w":w,"h":h})
-        print(label,confidences[i])
-        draw_prediction(image,[0,0,0], label, confidences[i], x, y, x+w, y+h)
-
+        #print(label,confidences[i])
+        #draw_prediction(image,[0,0,0], label, confidences[i], x, y, x+w, y+h)
     else:
+        #print(label,confidences[i])
         confidence = round(confidences[i],2)
         draw_prediction(image,[0,0,0], label, confidence, x, y, x+w, y+h)
 

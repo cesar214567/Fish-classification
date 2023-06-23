@@ -39,7 +39,7 @@ print('GPU name: ', tf.config.experimental.list_physical_devices('GPU'))
 device_name = tf.test.gpu_device_name()
 print(device_name)
 random_state = 42
-columns=['ALB','BET', 'DOL', 'LAG', 'SHARK', 'YFT', 'OTHER']
+columns=['ALB','BET', 'DOL', 'LAG', 'OTHER', 'SHARK', 'YFT']
 #columns = ['MugilCephalus','RhinobatosCemiculus','ScomberJaponicus','TetrapturusBelone','Trout']
 IMG_COUNT = 224
 IMG_SIZE = (IMG_COUNT, IMG_COUNT)
@@ -140,8 +140,8 @@ def run_cross_validation_create_models():
 
 
     name,model = create_model()
-    generate_data_csv('NatureConservancyCropped',['train','test'])
-    #generate_data_csv('NatureConservancyCropped',['train'])
+    #generate_data_csv('NatureConservancyCropped',['train','test'])
+    generate_data_csv('NatureConservancyCropped',['train'])
 
     train_data = pd.read_csv('data.csv')
 
@@ -176,7 +176,7 @@ def run_cross_validation_create_models():
     #test data 
 
     predictions = model.predict(test_data_generator)
-    model.save('model.h5')
+    #model.save('model.h5')
 
     results = model.evaluate(test_data_generator)
 
@@ -194,10 +194,10 @@ def run_cross_validation_create_models():
     conf_matrix = conf_matrix *100/ conf_matrix.astype(float).sum(axis=0)
     conf_matrix = np.round(conf_matrix,decimals=3)
     print(conf_matrix)
-    np.savetxt("conf_matrix2.csv",conf_matrix,delimiter=",")
+    np.savetxt("experimento2_conf_matrix.csv",conf_matrix,delimiter=",")
+    #np.savetxt("experimento3_conf_matrix.csv",conf_matrix,delimiter=",")
 
 
 if __name__ == '__main__':
     print('Keras version: {}'.format(keras_version))
     run_cross_validation_create_models()
-    #run_cross_validation_process_test(info_string, models)

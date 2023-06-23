@@ -187,8 +187,8 @@ def run_cross_validation_create_models():
     folder = 'NatureConservancyCropped'
     #folder = 'NatureConservancy'
     train_ds,val_ds = read_and_normalize_train_data(folder)
-    test_ds = read_and_normalize_test_data(folder)
-    #test_ds = val_ds
+    #test_ds = read_and_normalize_test_data(folder)
+    test_ds = val_ds
 
     #train_ds,val_ds = read_and_normalize_train_data('FishSpecies')
     #test_ds = read_and_normalize_test_data('FishSpecies')
@@ -230,7 +230,7 @@ def run_cross_validation_create_models():
     conf_matrix = conf_matrix *100/ conf_matrix.astype(float).sum(axis=0)
     conf_matrix = np.round(conf_matrix,decimals=3)    
     print(conf_matrix)
-    np.savetxt("conf_matrix.csv",conf_matrix,delimiter=",")
+    np.savetxt("experimento1_conf_matrix.csv",conf_matrix,delimiter=",")
 
 if __name__ == '__main__':
     #print('Keras version: {}'.format(tf.keras.keras_version))

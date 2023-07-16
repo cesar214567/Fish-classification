@@ -41,10 +41,14 @@ ap = argparse.ArgumentParser()
 
 ap.add_argument('-c', '--config', required=False,
                 help = 'path to yolo config file')
-ap.add_argument('-w', '--weights', required=True,
-                help = 'path to yolo pre-trained weights')
-ap.add_argument('-cl', '--classes', required=True,
-                help = 'path to text file containing class names')
+ap.add_argument('-wD', '--weightsDetector', required=True,
+                help = 'path to detector pre-trained weights')
+ap.add_argument('-clD', '--classesDetector', required=True,
+                help = 'path to text file containing class names for detector')
+ap.add_argument('-wC', '--weightsClassifier', required=True,
+                help = 'path to CNN pre-trained weights')
+ap.add_argument('-clC', '--classesClassifier', required=True,
+                help = 'path to text file containing class names for CNN')
 ap.add_argument('-expand', '--expand', required=True,
                 help = 'expand image?(for pretrained yolov5)')
 args = ap.parse_args()
@@ -62,23 +66,29 @@ def draw_prediction(img, color, label , confidence, x, y, x_plus_w, y_plus_h):
 
 scale = 1.0/255
 
+
 classes = None
+columns = None
+with open(args.classesDetector, 'r') as f:
+    classes = np.array([line.strip() for line in f.readlines()])
 
-with open(args.classes, 'r') as f:
-    classes = [line.strip() for line in f.readlines()]
+with open(args.classesClassifier, 'r') as f:
+    columns = np.array([line.strip() for line in f.readlines()])
 
-columns=np.array(['ALB','BET', 'DOL', 'LAG', 'OTHER', 'SHARK', 'YFT'])
+#columns=np.array(['ALB','BET', 'DOL', 'LAG', 'OTHER', 'SHARK', 'YFT'])
+#columns=np.array(['ALB','BET', 'DOL', 'LAG','MugilCephalus', 'OTHER','RhinobatosCemiculus','ScomberJaponicus','SHARK','TetrapturusBelone','Trout', 'YFT'])
+
 #COLORS = np.random.uniform(0, 255, size=(len(classes), 3))
 COLORS = np.random.uniform(0, 255, size=(len(columns), 3))
 
 
-model = tf.keras.models.load_model('model.h5',custom_objects={"f1_m":f1_m,"precision_m":precision_m, "recall_m":recall_m})
+model = tf.keras.models.load_model(args.weightsClassifier,custom_objects={"f1_m":f1_m,"precision_m":precision_m, "recall_m":recall_m})
 type = ""
-if args.weights.endswith('.onnx'):
-    net = cv2.dnn.readNet(args.weights)
+if args.weightsDetector.endswith('.onnx'):
+    net = cv2.dnn.readNet(args.weightsDetector)
     type = "ONNX"
-elif args.weights.endswith('.weights'):
-    net = cv2.dnn.readNet(args.weights, args.config)
+elif args.weightsDetector.endswith('.weights'):
+    net = cv2.dnn.readNet(args.weightsDetector, args.configDetector)
     type = "WEIGHTS"
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
@@ -169,13 +179,13 @@ while True:
                 h = min(image.shape[0],round(h+h*0.4))
             class_id = class_ids[i]
             label = str(classes[class_id])
-            
-            if (("best" in args.weights and confidences[i] >= fish_conf_threshold) or (label!="Fishing Rod" and ("Fish" in label or "Seafood" in label )and confidences[i] >= fish_conf_threshold)):
+            if (("best" in args.weightsDetector and confidences[i] >= fish_conf_threshold) or 
+                    (label!="Fishing Rod" and ("Fish" in label or "Seafood" in label )and confidences[i] >= fish_conf_threshold)):
                 fish_image = image[y:y+h,x:x+w]
                 fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_LINEAR)
                 fish_image = fish_image.reshape(224,224,3)
                 fish_images.append(fish_image)
-                fish_info.append({"index":i,"x":x,"y":y,"w":w,"h":h})
+                fish_info.append({"x":x,"y":y,"w":w,"h":h})
             else:
                 confidence = round(confidences[i],2)
                 draw_prediction(image,[0,0,0], label, confidence, x, y, x+w, y+h)
@@ -189,12 +199,14 @@ while True:
             colors = COLORS[fish_ids]
             confidences = np.round(np.max(prediction,axis=1),decimals=2)
             for i,info in enumerate(fish_info):
-                index,x,y,w,h = info['index'],info['x'],info['y'],info['w'],info['h']
+                x,y,w,h = info['x'],info['y'],info['w'],info['h']
                 label = labels[i]
                 color = colors[i]
                 confidence = confidences[i]
                 draw_prediction(image,color, label, confidence, x, y, x+w, y+h)
-        
+                print(fish_ids[i],label,confidence)
+
+
         #image = cv2.resize(image, (1200,800), interpolation = cv2.INTER_LINEAR)
         cv2.imshow('img', image)
         if cv2.waitKey(60) & 0xff == ord('q'):

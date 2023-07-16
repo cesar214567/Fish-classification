@@ -132,6 +132,10 @@ Dentro de esta carpeta se contiene los archivos que especifican cada uno de los 
 
 *Cabe resaltar que para los ultimos modelos preentrenados (best.onnx y best2.onnx) se utiliza el mismo archivo de clases que en el caso del clasificador, el cual se encuentra fuera de la carpeta models con el nombre de "yololabels.txt"
 
+Además se incluyeron 2 modelos con sus respectivos archivos de clases que resultaron del entrenamiento del clasificador:
+- model.h5 y model.names #capaz de clasificar los peces de NatureConservancy
+- modelX.h5 y modelX.names #capaz de clasificar los peces de los 3 datasets
+
 </details>
 
 <details open>
@@ -266,6 +270,8 @@ Al ejecutarse, se crea el archivo "experimento3_conf_matrix.csv" en la carpeta p
 
 *Este programa almacena el modelo entrenado en el archivo "model.h5" en la carpeta principal.
 
+**Para la sustentacion y presentación de la tesis, se utilizaron tambien las clases dentro de la carpeta NatureConservancyCroppedMerged, que contenia las especies de FishSpecies. En ese sentido, se añadieron las columnas correspondientes y se genero un nuevo modelo "modelX.h5" conteniendo el nuevo modelo capaz de detectar 4 especies extra de peces.
+
 </details>
 
 <details open>
@@ -309,9 +315,9 @@ entre otros ...
 ### Pipeline ejecutado a una imagen:
 
 ```
-yolov5 pretrained >> python detect_classify.py -i ./yololabel/bet.jpg -w ./models/yolov5mObjects365.onnx -cl ./models/objects365.names -expand yes
+yolov5 pretrained >> python detect_classify.py -i ./yololabel/bet.jpg -wD ./models/yolov5mObjects365.onnx -clD ./models/objects365.names -wC ./models/modelX.h5 -clC ./models/modelX.names -expand yes
 
-yolov5 trained >> python detect_classify.py -i ./yololabel/bet.jpg -w ./models/best.onnx -cl ./yololabels.txt -expand no
+yolov5 trained >> python detect_classify.py -i ./yololabel/bet.jpg -wD ./models/best.onnx -clD ./models/yololabels.txt -wC ./models/modelX.h5 -clC ./models/modelX.names -expand no  
 
 ```
 
@@ -324,9 +330,9 @@ yolov5 trained >> python detect_classify.py -i ./yololabel/bet.jpg -w ./models/b
 ### Pipeline ejecutado en tiempo real con camara:
 
 ```
-yolov5 pretrained >> python detect_classify_camera.py -w ./models/yolov5mObjects365.onnx -cl ./models/objects365.names -expand yes
+yolov5 pretrained >> python detect_classify_camera.py -wD ./models/yolov5mObjects365.onnx -clD ./models/objects365.names -wC ./models/modelX.h5 -clC ./models/modelX.names -expand yes
 
-yolov5 trained >> python detect_classify_camera.py -w ./models/best.onnx -cl ./yololabels.txt -expand no
+yolov5 trained >> python detect_classify_camera.py -wD ./models/best.onnx -clD ./yololabels.txt -wC ./models/modelX.h5 -clC ./models/modelX.names -expand no  
 
 ```
 

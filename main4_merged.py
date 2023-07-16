@@ -175,7 +175,8 @@ def run_cross_validation_create_models():
     #test data 
 
     predictions = model.predict(test_data_generator)
-    model.save('modelX.h5')
+    #model.save('./models/model.h5')
+    model.save('./models/modelX.h5')
 
     results = model.evaluate(test_data_generator)
 

@@ -204,7 +204,7 @@ def run_cross_validation_create_models():
     )
     display_plot_for_history(history)
     #test data 
-    model.save('model.h5')
+    model.save('./models/model.h5')
     predictions = model.predict(test_ds)
     
 

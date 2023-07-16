@@ -35,10 +35,14 @@ ap.add_argument('-i', '--image', required=True,
                 help = 'path to input image')
 ap.add_argument('-c', '--config', required=False,
                 help = 'path to yolo config file')
-ap.add_argument('-w', '--weights', required=True,
-                help = 'path to yolo pre-trained weights')
-ap.add_argument('-cl', '--classes', required=True,
-                help = 'path to text file containing class names')
+ap.add_argument('-wD', '--weightsDetector', required=True,
+                help = 'path to detector pre-trained weights')
+ap.add_argument('-clD', '--classesDetector', required=True,
+                help = 'path to text file containing class names for detector')
+ap.add_argument('-wC', '--weightsClassifier', required=True,
+                help = 'path to CNN pre-trained weights')
+ap.add_argument('-clC', '--classesClassifier', required=True,
+                help = 'path to text file containing class names for CNN')
 ap.add_argument('-expand', '--expand', required=True,
                 help = 'expand image?(for pretrained yolov5)')
 args = ap.parse_args()
@@ -57,22 +61,26 @@ image = cv2.imread(args.image)
 scale = 1.0/255
 
 classes = None
+columns = None
+with open(args.classesDetector, 'r') as f:
+    classes = np.array([line.strip() for line in f.readlines()])
 
-with open(args.classes, 'r') as f:
-    classes = [line.strip() for line in f.readlines()]
+with open(args.classesClassifier, 'r') as f:
+    columns = np.array([line.strip() for line in f.readlines()])
 
-columns=np.array(['ALB','BET', 'DOL', 'LAG', 'OTHER', 'SHARK', 'YFT'])
+#columns=np.array(['ALB','BET', 'DOL', 'LAG', 'OTHER', 'SHARK', 'YFT'])
+#columns=np.array(['ALB','BET', 'DOL', 'LAG','MugilCephalus', 'OTHER','RhinobatosCemiculus','ScomberJaponicus','SHARK','TetrapturusBelone','Trout', 'YFT'])
 #COLORS = np.random.uniform(0, 255, size=(len(classes), 3))
 COLORS = np.random.uniform(0, 255, size=(len(columns), 3))
 
 
-model = tf.keras.models.load_model('model.h5',custom_objects={"f1_m":f1_m,"precision_m":precision_m, "recall_m":recall_m})
+model = tf.keras.models.load_model(args.weightsClassifier,custom_objects={"f1_m":f1_m,"precision_m":precision_m, "recall_m":recall_m})
 type = ""
-if args.weights.endswith('.onnx'):
-    net = cv2.dnn.readNet(args.weights)
+if args.weightsDetector.endswith('.onnx'):
+    net = cv2.dnn.readNet(args.weightsDetector)
     type = "ONNX"
-elif args.weights.endswith('.weights'):
-    net = cv2.dnn.readNet(args.weights, args.config)
+elif args.weightsDetector.endswith('.weights'):
+    net = cv2.dnn.readNet(args.weightsDetector, args.configDetector)
     type = "WEIGHTS"
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
@@ -154,7 +162,7 @@ for i in indices:
     label = str(classes[class_id])
 
 
-    if (("best" in args.weights and confidences[i] >= fish_conf_threshold) or (label!="Fishing Rod" and ("Fish" in label or "Seafood" in label )and confidences[i] >= fish_conf_threshold)):
+    if (("best" in args.weightsDetector and confidences[i] >= fish_conf_threshold) or (label!="Fishing Rod" and ("Fish" in label or "Seafood" in label )and confidences[i] >= fish_conf_threshold)):
         print(label)
         fish_image = image[y:y+h,x:x+w]
         fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_LINEAR)

@@ -31,7 +31,6 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 import numpy as np
-from keras_dataloader.datagenerator import DataGenerator
 
 from keras import backend as K
 from utils.utils import f1_m,precision_m, recall_m
@@ -44,8 +43,7 @@ columns=['ALB','BET', 'DOL', 'LAG', 'SHARK', 'YFT', 'OTHER']
 #columns = ['MugilCephalus','RhinobatosCemiculus','ScomberJaponicus','TetrapturusBelone','Trout']
 IMG_COUNT = 224
 IMG_SIZE = (IMG_COUNT, IMG_COUNT)
-#print("device is: ",device)
-#torch.cuda.set_per_process_memory_fraction(1.0, device=None) 
+
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus: 
@@ -130,7 +128,6 @@ def create_model():
     print(pretrained_model.output)
     layers = [1024,256,64,len(columns)]
     sequential_layers = [pretrained_model,tf.keras.layers.GlobalAveragePooling2D(),tf.keras.layers.Flatten()]
-    #sequential_layers = [pretrained_model,tf.keras.layers.Flatten()]
     top_dropout_rate = 0.5 
     for layer in layers:
         sequential_layers.append(tf.keras.layers.BatchNormalization())
@@ -197,8 +194,6 @@ def run_cross_validation_create_models():
     
 
     print(test_ds.class_indices)
-    #train_generator = DataGenerator(X_train,Y_train, 4)
-    #validate_generator = DataGenerator(X_valid,Y_valid, 4)
     callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
     history = model.fit(
         train_ds,
@@ -233,6 +228,4 @@ def run_cross_validation_create_models():
     np.savetxt("experimento1_conf_matrix.csv",conf_matrix,delimiter=",")
 
 if __name__ == '__main__':
-    #print('Keras version: {}'.format(tf.keras.keras_version))
     run_cross_validation_create_models()
-    #run_cross_validation_process_test(info_string, models)

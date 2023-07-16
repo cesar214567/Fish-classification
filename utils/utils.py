@@ -22,8 +22,7 @@ def f1_m(y_true, y_pred):
     return 2*((precision*recall)/(precision+recall+K.epsilon()))
 
 
-def generate_data_csv(folder, datasets =["train"]):
-    columns=['ALB','BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
+def generate_data_csv(folder, columns,datasets =["train"]):
 
     data = []
     for label in columns:

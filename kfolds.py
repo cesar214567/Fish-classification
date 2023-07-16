@@ -184,11 +184,8 @@ with open('results.csv','w',newline='') as results_file:
         
         # CREATE NEW MODEL
         model = create_model()
-        # COMPILE NEW MODEL
         # CREATE CALLBACKS
         callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
-        # There can be other callbacks, but just showing one because it involves the model name
-        # This saves the best model 
         # FIT THE MODEL
         
         history = model.fit(train_data_generator,
@@ -205,8 +202,3 @@ with open('results.csv','w',newline='') as results_file:
         
         tf.keras.backend.clear_session()
         fold_var += 1
-
-#if __name__ == '__main__':
-#    print('Keras version: {}'.format(keras_version))
-#    run_cross_validation_create_models()
-#    #run_cross_validation_process_test(info_string, models)

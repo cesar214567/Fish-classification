@@ -38,14 +38,15 @@ for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 
 ap = argparse.ArgumentParser()
-ap.add_argument('-i', '--image', required=True,
-                help = 'path to input image')
-ap.add_argument('-c', '--config', required=True,
+
+ap.add_argument('-c', '--config', required=False,
                 help = 'path to yolo config file')
 ap.add_argument('-w', '--weights', required=True,
                 help = 'path to yolo pre-trained weights')
 ap.add_argument('-cl', '--classes', required=True,
                 help = 'path to text file containing class names')
+ap.add_argument('-expand', '--expand', required=True,
+                help = 'expand image?(for pretrained yolov5)')
 args = ap.parse_args()
 
 
@@ -82,8 +83,11 @@ elif args.weights.endswith('.weights'):
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
 
-conf_threshold = 0.4
-nms_threshold = 0.3
+conf_threshold = 0.02
+nms_threshold = 0.05
+#for yolov5 not trained 
+fish_conf_threshold = 0.4
+
 #nms_threshold = 0.9
 #conf_threshold = 0.5
 #nms_threshold = 0.45
@@ -158,11 +162,15 @@ while True:
             y = round(box[1])
             w = round(box[2])
             h = round(box[3])
+            if args.expand =='yes':
+                x = max(0,round(x - w*0.2))
+                y = max(0,round(y - h*0.2))
+                w = min(image.shape[1],round(w+w*0.4))
+                h = min(image.shape[0],round(h+h*0.4))
             class_id = class_ids[i]
             label = str(classes[class_id])
-
-
-            if(label == "Fish"):
+            
+            if (("best" in args.weights and confidences[i] >= fish_conf_threshold) or (label!="Fishing Rod" and ("Fish" in label or "Seafood" in label )and confidences[i] >= fish_conf_threshold)):
                 fish_image = image[y:y+h,x:x+w]
                 fish_image = cv2.resize(fish_image, IMG_SIZE, cv2.INTER_LINEAR)
                 fish_image = fish_image.reshape(224,224,3)

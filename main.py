@@ -285,9 +285,6 @@ def run_cross_validation_create_models(pretrained_model,X_train,Y_train,X_valid,
         validation_data=validate_generator,
         callbacks=[callback,csv_logger]
     )
-    #test data 
-    #Y_test = Y_valid
-    #X_test, Y_test = read_and_normalize_test_data()
     validate_generator = DataGenerator(X_test, Y_test, 8)
     
     
@@ -313,7 +310,6 @@ def run_cross_validation_create_models(pretrained_model,X_train,Y_train,X_valid,
 if __name__ == '__main__':
     print('Keras version: {}'.format(keras_version))
     models = [get_vgg19,get_resnet50,get_inceptionv3,get_mobilenetV2,get_mobilenetV1,get_xception,get_efficientnetb0]
-    #models=[get_vgg19]
     histories = []
     
     folder = 'NatureConservancy'    

@@ -33,7 +33,7 @@ for gpu in gpus:
 ap = argparse.ArgumentParser()
 ap.add_argument('-i', '--image', required=True,
                 help = 'path to input image')
-ap.add_argument('-c', '--config', required=True,
+ap.add_argument('-c', '--config', required=False,
                 help = 'path to yolo config file')
 ap.add_argument('-w', '--weights', required=True,
                 help = 'path to yolo pre-trained weights')
@@ -44,7 +44,6 @@ ap.add_argument('-expand', '--expand', required=True,
 args = ap.parse_args()
 
 def draw_prediction(img, color, label , confidence, x, y, x_plus_w, y_plus_h):
-
     label = label + str(confidence)
 
     cv2.rectangle(img, (x,y), (x_plus_w,y_plus_h), color, 2)
@@ -98,9 +97,10 @@ outs = net.forward(net.getUnconnectedOutLayersNames())
 class_ids = []
 confidences = []
 boxes = []
-conf_threshold = 0.2
+conf_threshold = 0.04
 nms_threshold = 0.05
-fish_conf_threshold = 0.3
+#for yolov5 not trained 
+fish_conf_threshold = 0.4
 #nms_threshold = 0.9
 #conf_threshold = 0.5
 #nms_threshold = 0.45

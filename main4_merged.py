@@ -39,7 +39,8 @@ print('GPU name: ', tf.config.experimental.list_physical_devices('GPU'))
 device_name = tf.test.gpu_device_name()
 print(device_name)
 random_state = 42
-columns=['ALB','BET', 'DOL', 'LAG', 'OTHER', 'SHARK', 'YFT']
+#columns=['ALB','BET', 'DOL', 'LAG', 'OTHER', 'SHARK', 'YFT']
+columns=['ALB','BET', 'DOL', 'LAG','MugilCephalus', 'OTHER','RhinobatosCemiculus','ScomberJaponicus','SHARK','TetrapturusBelone','Trout', 'YFT']
 #columns = ['MugilCephalus','RhinobatosCemiculus','ScomberJaponicus','TetrapturusBelone','Trout']
 IMG_COUNT = 224
 IMG_SIZE = (IMG_COUNT, IMG_COUNT)
@@ -134,20 +135,19 @@ def run_cross_validation_create_models():
     num_epoch = 100
     batch_size = 32
 
-    folder = 'NatureConservancyCropped'
+    #folder = 'NatureConservancyCropped'
     #folder = 'NatureConservancyCroppedAugmented'
+    folder = 'NatureConservancyCroppedMerged'
     image_dir = '.'
 
 
     name,model = create_model()
-    #generate_data_csv('NatureConservancyCropped',['train','test'])
-    generate_data_csv('NatureConservancyCropped',['train'])
+    generate_data_csv(folder,columns, ['train','test'])
+    #generate_data_csv(folder,['train'])
 
     train_data = pd.read_csv('data.csv')
 
     idg = tf.keras.preprocessing.image.ImageDataGenerator()
-    VALIDATION_ACCURACY = []
-    VALIDATION_LOSS = []
     train, test = train_test_split(train_data, test_size=0.10)
     train, val = train_test_split(train, test_size=2./9.)
     train_data_generator = idg.flow_from_dataframe(train, directory = image_dir,
@@ -170,13 +170,12 @@ def run_cross_validation_create_models():
         epochs=num_epoch,
         validation_data=valid_data_generator,
         callbacks=[callback]
-        #callbacks=[]
     )
     display_plot_for_history(history)
     #test data 
 
     predictions = model.predict(test_data_generator)
-    #model.save('model.h5')
+    model.save('modelX.h5')
 
     results = model.evaluate(test_data_generator)
 
@@ -194,9 +193,10 @@ def run_cross_validation_create_models():
     conf_matrix = conf_matrix *100/ conf_matrix.astype(float).sum(axis=0)
     conf_matrix = np.round(conf_matrix,decimals=3)
     print(conf_matrix)
-    np.savetxt("experimento2_conf_matrix.csv",conf_matrix,delimiter=",")
     #np.savetxt("experimento3_conf_matrix.csv",conf_matrix,delimiter=",")
-
+    #np.savetxt("experimento2_conf_matrix.csv",conf_matrix,delimiter=",")
+    np.savetxt("experimentoX_conf_matrix.csv",conf_matrix,delimiter=",")
+    
 
 if __name__ == '__main__':
     print('Keras version: {}'.format(keras_version))

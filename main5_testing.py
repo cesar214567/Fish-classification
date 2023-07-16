@@ -41,7 +41,6 @@ images_folder = f'{folder}images/'
 
 print(get_folders_size(cropped_images_folder,columns=columns_without_crop))
 print(get_folders_cropped_images_size(images_folder,columns=columns_without_crop))
-exit()
 
 model = tf.keras.models.load_model('model.h5',custom_objects={"f1_m":f1_m,"precision_m":precision_m, "recall_m":recall_m})
 

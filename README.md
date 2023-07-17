@@ -10,16 +10,24 @@ La tesis consiste de 3 repositorios diferentes:
 <summary>Instalacion</summary>
 
 ```
-git clone https://github.com/cesar214567/yolov5
+git clone https://github.com/cesar214567/Fish-classification
 ```
 \* Si desea replicar el entrenamiento del yolov5 con el dataset usado para la tesis se puede dirigir al siguiente repositorio y dirigirse al readme en la sección entrenamiento: 
 ```
-https://github.com/cesar214567/Fish-classification
+https://github.com/cesar214567/yolov5
 ```
 \* Los modelos preentrenados se encuentran en la carpeta ./models. En el presente proyecto se trabajaron con 3 diferentes arquitecturas, yolov3, yolov5 y UniDet. Debido a que yolov3 consiguió resultados no favorables y también debido al peso de sus modelos entrenados (se probó con 2 modelos pre-entrenados con diferentes versiones de OpenImages), estos fueron excluidos, pero si desea utilizarlos, puede descargarlos desde el siguiente link y incluirlos en esa carpeta:
 ```
 https://drive.google.com/drive/folders/16WkuZiWYL7-6sgTcZkarooj9_yys_Qd4?usp=sharing 
 ```
+
+Cabe resaltar que para la ejecución de esta tesis se recomienda el uso de opencv compilado con cuda, para lo cual recomiendo utilizar el siguiente video:
+
+- [Build and Install OpenCV With CUDA GPU Support on Windows 10 | OpenCV 4.5.1 | 2021
+](https://www.youtube.com/watch?v=YsmhKar8oOc)
+
+Tambien se recomienda el uso de python 3.9.
+
 </details>
 
 <details open>
@@ -332,7 +340,7 @@ yolov5 trained >> python detect_classify.py -i ./yololabel/bet.jpg -wD ./models/
 ```
 yolov5 pretrained >> python detect_classify_camera.py -wD ./models/yolov5mObjects365.onnx -clD ./models/objects365.names -wC ./models/modelX.h5 -clC ./models/modelX.names -expand yes
 
-yolov5 trained >> python detect_classify_camera.py -wD ./models/best.onnx -clD ./yololabels.txt -wC ./models/modelX.h5 -clC ./models/modelX.names -expand no  
+yolov5 trained >> python detect_classify_camera.py -wD ./models/best.onnx -clD ./models/yololabels.txt -wC ./models/modelX.h5 -clC ./models/modelX.names -expand no  
 
 ```
 

@@ -1,0 +1,178 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{import}
+\usepackage{svg}
+\usepackage{amsmath}
+\usepackage{cite}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+\usepackage{rotating}
+
+
+%\title{Creación de un pipeline utilizando los modelos de detección y localización de objetos en imágenes para mejorar la escalabilidad en términos de especificidad de especies}
+\title{Detección y clasificación de especies de peces: Un \textit{pipeline} eficiente en un dataset no etiquetado}
+\author{cesar.madera@utec.edu.pe}
+\date{Noviembre 2021}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{apacite}
+\usepackage{csquotes}
+
+%\usepackage{natbib}
+% \bibliographystyle{abbrvnat}
+%\bibliographystyle{elsarticle-num-names}
+\usepackage{graphicx}
+
+%no corte palabras
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+
+
+\begin{document}
+
+\begin{titlepage}
+    \begin{center}
+        \Large
+        \textbf{UNIVERSIDAD DE INGENIERÍA Y TECNOLOGÍA}
+        \vspace*{1cm}
+
+        \large
+        \textbf{CARRERA DE CIENCIA DE LA COMPUTACIÓN}
+        \vspace*{1cm}
+
+        \begin{figure}[htbp]
+            \centering
+            \includegraphics[width=6.5cm,height=\textheight,keepaspectratio]{images/logo}
+        \end{figure}
+
+
+        \LARGE
+        \textbf{Detección y clasificación de especies de peces: Un \textit{pipeline} eficiente en un dataset no etiquetado}
+
+        \vspace{1.0cm}
+        \Large
+
+        %\vspace{1.5cm}
+
+        \textbf{AUTOR}
+        \vspace{0.5cm}
+        \\Cesar Antonio Madera Garcés
+        \\cesar.madera@utec.edu.pe
+
+        \textbf{ASESOR}
+        \vspace{0.5cm}
+        \\Cristian López
+        \\clopezd@utec.edu.pe
+        \vfill
+        \Large
+
+        Lima - Perú
+        \\
+        2022
+
+    \end{center}
+\end{titlepage}
+
+
+\chapter*{Resumen}
+\import{}{real/resumen.tex}
+
+\chapter*{Abstract}
+\import{}{real/abstract.tex}
+
+\tableofcontents
+
+%---------- Capítulo  Contexto y Motivación -------
+\chapter{Contexto y Motivación}
+
+\section{Introducción}
+\import{}{real/introduction.tex}
+
+\section{Descripción del problema}
+\import{}{real/problema.tex}
+
+\section{Justificación}
+\import{}{real/justificacion.tex}
+
+\section{Objetivos}
+\import{}{real/objetivos.tex}
+
+\section{Aportes}
+\import{}{real/aportes.tex}
+
+
+%--------------------------------------------------
+
+%---------- Capítulo  Marco Teórico ---------------
+\chapter{Marco Teórico}
+\import{}{real/prevKnowledge.tex}
+%--------------------------------------------------
+
+%--------------------------------------------------
+%---------- Capítulo  Revisión Lit. ---------------
+\chapter{Revisión de la Literatura}
+\import{}{real/stateOfTheArt.tex}
+%\hline
+%\LARGE
+%Hasta aquí la evaluación parcial por parte de un jurado invitado
+
+%\hline
+%--------------------------------------------------
+
+%---------- Capítulo  Metodología -----------------
+\chapter{Metodología}
+\import{}{real/proposal.tex}
+
+%\section{Alcances y Limitaciones}
+%\import{}{template/alcances.tex}
+
+
+%--------------------------------------------------
+
+%---------- Capítulo  Experimentación -----------------
+
+\chapter{Experimentaciones y Resultados}
+\import{}{real/experiments.tex}
+
+%--------------------------------------------------
+
+%---------- Capítulo  Conclusiones -----------------
+
+\chapter{Conclusiones y Trabajos Futuros}
+%\import{}{template/Prevconclusions.tex}
+
+\import{}{real/conclusions.tex}
+
+
+%\hline
+%\LARGE
+%Hasta aquí la evaluación final  por parte de un jurado invitado
+
+
+
+
+
+%\hline
+
+
+%\bibliographystyle{plain}
+
+\nocite{zobel}
+\nocite{swales}
+
+\bibliographystyle{apacite}
+\bibliography{references}
+
+\newpage
+\appendix
+
+\chapter{Experimentación con distribución de datos diferentes}
+\import{}{real/anexos.tex}
+
+
+
+\end{document}

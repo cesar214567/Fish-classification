@@ -1,13 +1,48 @@
 
-En los últimos años \textit{Machine Learning} (ML) ha ganado una mayor importancia por su gran capacidad de aprender patrones, realizar regresiones y especialmente debido al potencial que tienen los diferentes modelos de clasificación. En ese sentido \textit{Deep Learning}(DL), o aprendizaje profundo, sub-área de ML, ya ha demostrado ser mejor que el humano en diferentes aplicaciones, desde la detección, localización y clasificación de imágenes de rostros, números, lugares, e incluso fauna y flora. 
+En los últimos años \textit{Machine Learning} (ML) ha ganado  
+mayor importancia debido a su capacidad para aprender patrones, 
+realizar regresiones y, especialmente, al potencial de los diferentes 
+modelos de clasificación. En este contexto, \textit{Deep Learning}(DL), 
+una subárea del ML, ha demostrado ser superior al humano en diversas 
+aplicaciones, como la detección, localización y clasificación de imágenes 
+de rostros, números, lugares e incluso fauna y flora.
 \newline
 \newline
-En el contexto de la fauna marina, existen aplicaciones a nivel global. Trabajos previos,  en este tópico, señalan que DL puede ser usado en la investigación de recursos pecuarios, obtención de conocimiento de las poblaciones, procesamiento de acuicultura, protección de especies en peligro de extinción y en el mantenimiento de la pesquería sustentable, entre otros \cite{10.1145/3419635.3419643, 10.1145/3325917.3325934,20.500.12724/11174,8371919}. \\\\
-Dentro de estos trabajos, Nibha Manandhar y J. W. Burris \cite{10.1145/3325917.3325934}, además de Mejia y Rosales \cite{20.500.12724/11174} utilizaron \textit{transfer learning}(TL) para la creación del modelo, técnica inspirada del trabajo de Chen Guang, \textit{et al}.\cite{8371919}.
-Por otra parte, también se viene investigando modelos para la clasificación en el fondo marino por Suxia Cui, \textit{et al}. \cite{Cui2020}, quienes usaron ImageNet\cite{ImageNet} como \textit{dataset} de imágenes para su entrenamiento. 
+En la actualidad existen muchas aplicaciones a nivel global para el contexto de 
+la fauna marina. Trabajos previos señalan que DL puede utilizarse 
+en la investigación de recursos pesqueros, la obtención de conocimiento 
+sobre poblaciones, el procesamiento de acuicultura, la protección de 
+especies en peligro de extinción y el mantenimiento de la pesquería 
+sostenible, entre otros 
+\cite{10.1145/3419635.3419643, 10.1145/3325917.3325934,20.500.12724/11174,8371919}.
 \newline
 \newline
-Siguiendo esta línea de investigación, sería conveniente comprobar los posibles usos que se le pueden dar en el contexto peruano tal como se hace en el mundo para optimizar o automatizar los procesos actuales de la clasificación. En el contexto actual, sin embargo, en el área de la clasificación de fauna marina peruana, únicamente Mejía y Rosales \cite{20.500.12724/11174} han realizado investigaciones sobre \textit{pipelines} de ML y visión computacional para esta área, analizando modelos con un gran costo computacional lo cual los hace poco factibles para su recreación en tiempo real.
+Dentro de estos trabajos, Nibha Manandhar y J. W. Burris 
+\cite{10.1145/3325917.3325934}, además de Mejia y Rosales 
+\cite{20.500.12724/11174} utilizaron \textit{transfer learning}(TL) 
+para crear sus modelos, una técnica inspirada en el trabajo de Chen Guang, 
+\textit{et al}.\cite{8371919}. Además, se han investigado modelos para la 
+clasificación en el fondo marino, como el estudio de Suxia Cui, 
+\textit{et al}. \cite{Cui2020}, quienes emplearon \cite{ImageNet} como 
+\textit{dataset} de imágenes para su entrenamiento. 
 \newline
 \newline
-Es por ello que el objetivo de este trabajo es implementar un pipeline que mejore la escalabilidad de estos modelos, evitando generar un costo computacional elevado y disminuyendo la precisión, para que pueda utilizarse en tiempo real en la clasificación de la fauna marina peruana. La estructura del documento se compone de: contexto y motivación, marco teórico, revisión de la literatura, metodología, experimentos y resultados, y por último, conclusiones y trabajos futuros.
+Siguiendo esta línea de investigación, sería conveniente explorar 
+los posibles usos en el contexto peruano, similar a lo que se hace a nivel 
+mundial, para optimizar o automatizar los procesos actuales de detección y 
+clasificación, además de crear nuevos \textit{datasets} para futuros trabajos. 
+Sin embargo, en el área de la clasificación de fauna marina 
+peruana, Mejía y Rosales \cite{20.500.12724/11174} han sido los únicos en 
+realizar investigaciones sobre \textit{pipelines} de ML y visión 
+computacional, analizando modelos con un gran costo computacional lo cual 
+los hace poco factibles para su recreación en tiempo real.
+\newline
+\newline
+Por lo tanto, el objetivo de este trabajo es implementar un \textit{pipeline} 
+que mejore la escalabilidad de estos modelos, evitando generar un costo 
+computacional elevado y reduciendo la pérdida de precisión, para que pueda 
+utilizarse en tiempo real en la detección, clasificación y etiquetado de la 
+fauna marina peruana. 
+La estructura del documento se compone de: contexto y motivación, marco 
+teórico, revisión de la literatura, metodología, experimentos y resultados, 
+y por último, conclusiones y trabajos futuros.

@@ -1,1 +1,20 @@
-A lo largo de los tiempos, el error humano y la falta de la automatización ha sido uno de los problemas más grandes de las instituciones y usuarios inexpertos en general. A consecuencia de esto, la creación y uso de aplicaciones con inteligencia artificial para la detección y clasificación de imágenes ha ido aumentando conforme al tiempo para disminuir el posible error humano. En el contexto peruano, esta tarea  nunca ha sido automatizada, generando también una falta de \textit{datasets} con imágenes etiquetadas. Actualmente, los modelos de \textit{Deep Learning}(DL) son los más usados generando una necesidad de este tipo de \textit{datasets} . Es por ello que en el siguiente trabajo se propuso, implementó y experimentó con un \textit{pipeline} de DL para la detección y clasificación de peces dentro de la fauna marina peruana, finalmente escogiendo una configuración que redujo la pérdida en el \textit{accuracy} y el tiempo de entrenamiento. Para ello, se evaluaron diferentes modelos del estado del arte en base al tamaño en memoria, el numero de parámetros y la precisión obtenida con el \textit{dataset} de ImageNet como métricas teóricas para su comparación, para luego aplicar \textit{transfer learning} sobre ellas para adaptarlas a nuestra aplicación y obtener un balance entre precisión-costo computacional para finalmente obtener la mas eficiente.  \\
+\textit{Machine Learning} (ML) se destaca como una herramienta 
+fundamental para la detección y clasificación de imágenes, 
+sin embargo, el entrenamiento de modelos avanzados requiere 
+una gran cantidad de imágenes etiquetadas y una capacidad 
+computacional significativa. Esta tarea resulta especialmente 
+desafiante en el contexto peruano debido a la escasez de 
+ejemplares etiquetados. Para abordar esta problemática, se 
+desarrolló un \textit{pipeline} de \textit{Deep Learning} (DL) para crear un 
+etiquetador automático de peces en la fauna marina peruana. 
+Este \textit{pipeline} utiliza un detector preentrenado (YoloV5 y Unidet) 
+y un clasificador basado en CNNs (EfficientNetB0). La selección 
+del clasificador se basó en un análisis exhaustivo de diversos 
+modelos del estado del arte, considerando el tamaño en memoria, 
+el número de parámetros y la precisión obtenida con los conjuntos 
+de datos de la investigación. Los resultados prácticos mostraron 
+un accuracy parcial del detector del 79.45\%, mientras que el 
+clasificador alcanzó un 91.47\%, generando así un accuracy final 
+del 72.67\%. Además, se logró un error mínimo del 22.54\% y se 
+desarrolló una aplicación en tiempo real que alcanzó hasta 8 fps, 
+lo que permitió automatizar la tarea de etiquetado de imágenes.

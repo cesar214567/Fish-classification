@@ -1,9 +1,56 @@
 \section{Conclusiones}
-En el presente trabajo se desarrolló un \textit{pipeline} para la detección y clasificación de imágenes de peces peruanos en un entorno real, evitando el uso de un \textit{dataset} etiquetado para la detección en imágenes. Para ello, se recolectó un \textit{dataset} a través de la plataforma Kaggle, conteniendo varios peces dentro de cada imagen, el cual fue recortado y clasificado por un experto. Finalmente se comprobó que utilizar un modelo ligero pero al mismo tiempo robusto como lo es EfficientNetB0, resulta ser la mejor opción para poder implementarlo al evitar una perdida significativa de la precisión final, un bajo tiempo de entrenamiento, una mayor escalabilidad para poder realizar la tarea de detección y clasificación de imágenes. 
+En el presente trabajo se desarrolló un \textit{pipeline} para el
+etiquetado de imágenes de peces peruanos, empleando técnicas de detección y 
+clasificación en un entorno real. Para ello, se recolectó un 
+\textit{dataset} de 5 mil imágenes aproximadamente a través de la plataforma 
+Kaggle, conteniendo varios peces dentro de cada imagen, el cual fue 
+recortado y clasificado por un experto. 
+A través de la experimentación, se comprobó que un modelo 
+ligero pero al mismo tiempo robusto como lo es EfficientNetB0 obtuvo una 
+precisión similar (entre 76\% y 92\%) al ser usado con diferentes detectores 
+dentro del \textit{pipeline}. 
+De parte del detector, se pudo comprobar que un modelo entrenado (como lo es YoloV5) 
+logra una mejor precisión inclusive comparándolo con una arquitectura más compleja 
+(como lo es UniDet), teniendo una diferencia de 79.5\% y 40.15\%. Por el contrario, 
+se obtuvo un menor error en la detección hecha por Unidet en general, siendo esta de 
+22.54\%. 
+\newline
+\newline
+Considerando los resultados obtenidos podemos afirmar que el performance y 
+la precisión del \textit{pipeline} dependerá del modelo preentrenado para el detector, 
+ya que el clasificador logrará clasificar correctamente (en su mayoría de veces) para lo 
+que fue entrenado. 
+En base a ellos, se logró desarrollar una aplicación en tiempo real, el cual 
+permitió automatizar el proceso de etiquetado para imágenes y videos.
 
 \section{Trabajos futuros}
-Algunas de las limitaciones que se tiene con este modelo consiste en que el \textit{pipeline} depende casi completamente del detector escogido, de tal manera que se necesita poder obtener uno bastante robusto y entrenado de manera general o incluso mejor si está especialmente entrenado para detectar las clases que se están estudiando. De esta manera, se generarían buenas entradas para el clasificador, reduciendo el efecto que este tendría en el \textit{pipeline} final. En ese sentido, sería bueno poder realizar más experimentos con diferentes arquitecturas y modelos.
+
+Algunas de las limitaciones que se tiene con este modelo consiste en que el 
+\textit{pipeline} depende casi completamente del detector escogido, de tal 
+manera que se necesita poder obtener uno bastante robusto y entrenado de 
+manera general o incluso mejor si está especialmente entrenado para detectar 
+las clases que se están estudiando. De esta manera, se generarían buenas 
+entradas para el clasificador, reduciendo el efecto que este tendría en el 
+\textit{pipeline} final. En ese sentido, sería bueno poder realizar más 
+experimentos con diferentes arquitecturas y modelos preentrenados que incluya 
+la clase peces.
 \\\\
-De la misma manera, actualmente existen ciertos \textit{datasets} que son ampliamente utilizados para la investigación y creación de aplicaciones de DL, mientras que otros presentan pocas implementaciones, lo que hace más complicado la obtención de modelos preentrenados con las clases genéricas requeridas (por ejemplo, peces). En ese sentido, otro trabajo futuro consistiría en preentrenar estos modelos con solo las clases genéricas a estudiar o incrementar tal vez una capa de atención a los modelos para poder incrementar la \textit{accuracy} del detector y por ende la del \textit{pipeline} completo.   
+De la misma manera, actualmente existen ciertos \textit{datasets} que son 
+ampliamente utilizados para la investigación y creación de aplicaciones de 
+DL, mientras que otros presentan pocas implementaciones, lo que hace más 
+complicado la obtención de modelos preentrenados con las clases genéricas 
+requeridas (por ejemplo, peces). En ese sentido, otro trabajo futuro 
+consistiría en poder utilizar este etiquetador para crear un \textit{dataset} 
+con la clase genérica de peces e incrementar una capa de atención a los modelos 
+para poder analizar como se comporta el \textit{pipeline} con respecto al 
+\textit{accuracy} parcial y final.   
 \\\\
-Por último, este trabajo se realizó con un \textit{dataset} de peces peruanos (en su mayoría) pero consistía de un bajo número de imágenes y consistían de una distribución de datos muy complejas. En ese sentido, el error y la precisión obtenido también contemplaban \textit{bias} debido a estos factores. Es por ello que se recomendaría replicar las experimentaciones realizadas en el presente documento pero con un \textit{dataset} que incluya un número de especies e imágenes mayor para poder calcular como es que esto influye en la precisión, el costo de entrenamiento y si se necesita mejorar o incrementar algunas capas del modelo.
+Por último, este trabajo se realizó con un \textit{dataset} de peces peruanos 
+(en su mayoría) pero consistía de un bajo número de imágenes y consistían de 
+una distribución de datos muy complejas. En ese sentido, el error y la 
+precisión obtenido también contemplaban \textit{bias} debido a estos factores. 
+Es por ello que se recomendaría replicar las experimentaciones realizadas en 
+el presente documento pero con un \textit{dataset} que incluya un número de 
+especies e imágenes mayor para poder calcular como es que esto influye en la 
+precisión, el costo de entrenamiento y si se necesita mejorar o incrementar 
+algunas capas del modelo.

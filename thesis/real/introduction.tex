@@ -2,10 +2,9 @@
 En los últimos años \textit{Machine Learning} (ML) ha ganado  
 mayor importancia debido a su capacidad para aprender patrones, 
 realizar regresiones y, especialmente, al potencial de los diferentes 
-modelos de clasificación. En este contexto, \textit{Deep Learning}(DL), 
+modelos de detección y clasificación de objetos. En este contexto, \textit{Deep Learning}(DL), 
 una subárea del ML, ha demostrado ser superior al humano en diversas 
-aplicaciones, como la detección, localización y clasificación de imágenes 
-de rostros, números, lugares e incluso fauna y flora.
+aplicaciones como el reconocimiento de rostros, números, lugares e incluso fauna y flora.
 \newline
 \newline
 En la actualidad existen muchas aplicaciones a nivel global para el contexto de 
@@ -23,26 +22,34 @@ Dentro de estos trabajos, Nibha Manandhar y J. W. Burris
 para crear sus modelos, una técnica inspirada en el trabajo de Chen Guang, 
 \textit{et al}.\cite{8371919}. Además, se han investigado modelos para la 
 clasificación en el fondo marino, como el estudio de Suxia Cui, 
-\textit{et al}. \cite{Cui2020}, quienes emplearon \cite{ImageNet} como 
+\textit{et al}. \cite{Cui2020}, quienes emplearon \textit{ImageNet}\cite{ImageNet} como 
 \textit{dataset} de imágenes para su entrenamiento. 
 \newline
 \newline
 Siguiendo esta línea de investigación, sería conveniente explorar 
 los posibles usos en el contexto peruano, similar a lo que se hace a nivel 
 mundial, para optimizar o automatizar los procesos actuales de detección y 
-clasificación, además de crear nuevos \textit{datasets} para futuros trabajos. 
-Sin embargo, en el área de la clasificación de fauna marina 
+clasificación. Sin embargo, en el área de la clasificación de fauna marina 
 peruana, Mejía y Rosales \cite{20.500.12724/11174} han sido los únicos en 
 realizar investigaciones sobre \textit{pipelines} de ML y visión 
-computacional, analizando modelos con un gran costo computacional lo cual 
-los hace poco factibles para su recreación en tiempo real.
+computacional hasta donde se ha investigado. Ellos analizaron modelos con 
+un gran costo computacional en tiempo de inferencia lo cual los hace poco 
+factibles para su recreación en tiempo real. Además del uso de estos 
+modelos complejos en el estado del arte, que requieren grandes cantidades 
+de imágenes, existe una falta de \textit{datasets} que incluyan especies 
+dentro de la fauna marina peruana, lo que dificulta aún más poder realizar 
+avances en esta área o entrenar los modelos de vanguardia para la fauna 
+peruana.
 \newline
 \newline
-Por lo tanto, el objetivo de este trabajo es implementar un \textit{pipeline} 
-que mejore la escalabilidad de estos modelos, evitando generar un costo 
-computacional elevado y reduciendo la pérdida de precisión, para que pueda 
-utilizarse en tiempo real en la detección, clasificación y etiquetado de la 
-fauna marina peruana. 
+Por lo tanto, en este trabajo se propone desarrollar un \textit{pipeline} 
+para el etiquetado automático en imágenes de especies marinas peruanas 
+logrando una escalabilidad de estos modelos, generando un menor costo 
+computacional y reduciendo la pérdida de precisión, para que pueda 
+utilizarse en tiempo real en la detección, clasificación y etiquetado de 
+la fauna marina peruana. 
+\newline
+\newline
 La estructura del documento se compone de: contexto y motivación, marco 
 teórico, revisión de la literatura, metodología, experimentos y resultados, 
 y por último, conclusiones y trabajos futuros.

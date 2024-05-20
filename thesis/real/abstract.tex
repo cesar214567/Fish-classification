@@ -1,1 +1,18 @@
-Throughout history, human error and the lack of automation have been significant challenges for institutions and inexperienced users in general. Consequently, the development and utilization of artificial intelligence applications for image detection and classification have steadily increased over time, aiming to mitigate potential human errors. However, in the Peruvian context, this task has yet to be automated, leading to a scarcity of labeled image datasets as well. Presently, deep learning models are widely employed, creating a demand for such datasets. Therefore, this study proposes, implements, and conducts experiments with a deep learning pipeline for detecting and classifying fish within the Peruvian marine fauna. The goal is to identify a configuration that reduces accuracy loss and training time. To achieve this, various state-of-the-art models were evaluated based on factors such as memory size, number of parameters, and accuracy attained using the ImageNet dataset as theoretical benchmarks for comparison. Subsequently, transfer learning was applied to adapt these models to our specific application, striking a balance between precision and computational cost, ultimately determining the most efficient approach.
+Machine Learning (ML) stands out as a fundamental tool for 
+image detection and classification, however, training 
+advanced models requires a large number of labeled images 
+and significant computational capacity. This task is especially 
+challenging in the Peruvian context due to the scarcity of labeled 
+specimens. To address this problem, a Deep Learning (DL) pipeline 
+was developed to create an automatic fish labeler in the Peruvian 
+marine fauna. This pipeline uses a pretrained detector (YoloV5 and 
+Unidet) and a classifier based on CNNs (EfficientNetB0). The 
+selection of the classifier was based on an exhaustive analysis of 
+various state-of-the-art models, considering the size in memory, 
+the number of parameters and the precision obtained with the 
+research data sets. The practical results showed a partial accuracy 
+of the detector of 79.45\%, while the classifier reached 91.47\%, 
+thus generating a final accuracy of 72.67\%. In addition, a minimum 
+error of 22.54\% was achieved and a real-time application was developed 
+that reached up to 8 fps, which allowed the image labeling task to be 
+automated.

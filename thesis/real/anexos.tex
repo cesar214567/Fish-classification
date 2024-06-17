@@ -1,9 +1,16 @@
 \label{appendix}
-Los siguientes experimentos fueron realizados para poder comprobar que la distribución de datos tanto del \textit{dataset} de entrenamiento como el de \textit{testing} eran diferentes, generando un \textit{overfitting} accidental en la experimentación general. 
+Los siguientes experimentos fueron realizados para poder comprobar 
+que la distribución de datos tanto del \textit{dataset} de 
+entrenamiento como el de \textit{testing} eran diferentes, 
+generando un \textit{overfitting} accidental en la experimentación 
+general. 
 
 \section{Experimentación A (training/ validation/ testing)}
 
-Una vez de terminado la creación de los \textit{bounding boxes} de parte del experto, se procedió a realizar la comprobación del modelo en base a los datos de \textit{testing}. Los estadísticos resultantes del \textit{testing} fueron los mostrados en la tabla \ref{table:Results2}.
+Una vez de terminado la creación de los \textit{bounding boxes} de parte 
+del experto, se procedió a realizar la comprobación del modelo en base a 
+los datos de \textit{testing}. Los estadísticos resultantes del \textit{testing} 
+fueron los mostrados en la tabla \ref{table:Anexo2}.
 \begin{table}[h!]
 \centering
 \begin{tabular}{|l|l|l|l|l|}
@@ -12,10 +19,13 @@ Una vez de terminado la creación de los \textit{bounding boxes} de parte del ex
 2.7014          & 46.50\%                          & 41.46\%                  & 50.28\%                         & 49.54\%                      \\ \hline
 \end{tabular}
 \caption{Estadísticos obtenidos del experimento \#A}
-\label{table:Results2}
+\label{table:Anexo2}
 \end{table}
 
-Los estadísticos obtenidos son bastante malos en comparación con los datos de entrenamiento. Para confirmar las sospechas de un posible \textit{overfitting}, se revisaron las gráficas de pérdida a través de las épocas, que se pueden ver en la imagen \ref{fig:losses3}.
+Los estadísticos obtenidos empeoraron en comparación con los datos de 
+entrenamiento. Para confirmar las sospechas de un posible 
+\textit{overfitting}, se revisaron las gráficas de pérdida a través de 
+las épocas, que se pueden ver en la imagen \ref{fig:losses3}.
 
 \begin{figure}[h!]
 \footnotesize
@@ -25,7 +35,11 @@ Los estadísticos obtenidos son bastante malos en comparación con los datos de 
 \label{fig:losses3}
 \end{figure}
 
-Una vez más, la gráfica muestra un posible caso de \textit{overfitting} de los datos y, aún peor, la gráfica de error indica un aumento en lugar de una disminución a lo largo de las épocas. Para evaluar de manera más detallada los resultados, se revisó la matriz de confusión generada, la cual se muestra en la tabla \ref{table:Matrix1}
+Una vez más, la gráfica muestra un posible caso de \textit{overfitting} de los 
+datos y, aún peor, la gráfica de error indica un aumento en lugar de una disminución 
+a lo largo de las épocas. Para evaluar de manera más detallada los resultados, 
+se revisó la matriz de confusión generada, la cual se muestra en la tabla 
+\ref{table:Matrix1}.
 \newpage
 \begin{table}[h!]
 \footnotesize
@@ -45,11 +59,17 @@ Una vez más, la gráfica muestra un posible caso de \textit{overfitting} de los
 \end{table}
 
 
-En la tabla se puede observar que la red tiende a predecir que los ejemplares pertenecen a la primera especie, lo que sugiere que está sobre aprendiendo de esta clase, posiblemente debido a la mayor cantidad de datos disponibles. A pesar de que esta hipótesis podría parecer plausible, no es la correcta, como se verá en las siguientes secciones.
+En la tabla se puede observar que la red tiende a predecir que los ejemplares 
+pertenecen a la primera especie, lo que sugiere que está sobre aprendiendo de esta 
+clase, posiblemente debido a la mayor cantidad de datos disponibles. A pesar de que 
+esta hipótesis podría parecer plausible, no es la correcta, como se verá en los siguientes experimentos.
 
-\section{Experimentación \#3 (training/ validation/ testing con \textit{unfreeze})}
+\section{Experimentación B (training/ validation/ testing con \textit{unfreeze})}
 
-Para intentar reducir el posible \textit{overfitting}, se decidió quitar el \textit{freeze} de los dos últimos bloques de capas convolucionales del modelo pre-entrenado, permitiendo así que el modelo aprenda más patrones dentro de las imágenes. Después de esta modificación, se obtuvieron los resultados que se muestran en la tabla \ref{table:Results3}.
+Para intentar reducir el posible \textit{overfitting}, se decidió quitar el 
+\textit{freeze} de los dos últimos bloques de capas convolucionales del modelo pre-entrenado, 
+permitiendo así que el modelo aprenda más patrones dentro de las imágenes. Después de esta 
+modificación, se obtuvieron los resultados que se muestran en la tabla \ref{table:Results3}.
 
 \begin{table}[h!]
 \centering
@@ -63,4 +83,6 @@ Para intentar reducir el posible \textit{overfitting}, se decidió quitar el \te
 \label{table:Results3}
 \end{table}
 
-De la misma manera, las gráficas de error y accuracy, junto con las matrices de confusión resultaron similares al anterior experimento, por lo que surgió la duda acerca de si tal vez existía una incongruencia con la base de datos.
+De la misma manera, las gráficas de error y \textit{accuracy}, junto con las matrices de 
+confusión resultaron similares al anterior experimento, por lo que surgió la duda acerca 
+de si tal vez existía una incongruencia con la base de datos.

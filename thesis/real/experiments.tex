@@ -1,4 +1,9 @@
-Considerando el \textit{pipeline} mencionado en el anterior capítulo, ahora se procederá a explicar a detalle el proceso de experimentación que ha sido realizado para el presente trabajo.
+Habiendo expuesto cada uno de los pasos dentro de la metodología de la investigación en el capítulo anterior, 
+en el presente capítulo se expondrán cada uno de los experimentos hechos de manera ordenada 
+que se realizó. Primero se hablarán de los \textit{datasets} utilizados, los softwares y 
+hardwares, el preprocesamiento de entradas. Finalmente, se abordarán los diferentes 
+\textit{stages} del \textit{pipeline}, comenzando por el detector, luego el clasificador y 
+terminando por el \textit{pipeline} completo.
 
 \section{Aspectos generales}
 \subsection{\textit{Datasets}}
@@ -24,13 +29,25 @@ Tarjeta Gráfica & Nvidia RTX 2060 6GB \\ \hline
 \end{tabular}
 \end{table}
 
-Por otra parte, se utilizó Python, junto con Keras, sklearn y tensorflow para el desarrollo del \textit{pipeline} en general y el pre y post procesamiento de los datos. Para el procesamiento de las imágenes (con Yolo) se utilizaron opencv compilado con cudnn para la habilitación del uso de tarjeta gráfica. 
+Por otra parte, se utilizó Python, junto con Keras, Sklearn y Tensorflow 
+para el desarrollo del \textit{pipeline} en general y el pre y post 
+procesamiento de los datos. Para el procesamiento de las imágenes (con Yolo) 
+se utilizó OpenCV compilado con cudnn para la habilitación del uso de tarjeta gráfica. 
 
-\subsection{Preprocesamiento de \textit{Bounding boxes}}
+\subsection{Preprocesamiento de \textit{Bounding Boxes}}
 
-Se llevó a cabo la creación manual de los \textit{bounding boxes} para todas las imágenes del \textit{dataset} ``\textit{The Nature Conservancy}'', utilizando el software de código abierto \textit{YoloLabel}, el cual proporciona una interfaz sencilla. Se contó con ayuda de un experto para crear los \textit{bounding boxes} y etiquetar cada imagen.
+Se llevó a cabo la creación manual de los \textit{bounding boxes} para todas las 
+imágenes del \textit{dataset} ``\textit{The Nature Conservancy}'', utilizando el 
+software de código abierto \textit{YoloLabel}, el cual proporciona una interfaz 
+sencilla. Se contó con ayuda de un experto para crear los \textit{bounding boxes} 
+y etiquetar cada imagen.
 \\\\
-Es importante mencionar que, aunque las imágenes en general eran borrosas, las del conjunto de entrenamiento resultaron ser menos complejas que las del conjunto de prueba. De hecho, estas últimas fueron difíciles de clasificar incluso para el experto. Una vez creados los \textit{bounding boxes}, se procedió a recortar las imágenes. Como resultado de este proceso, se obtuvieron diferentes cantidades de imágenes por clase, como se muestra en la tabla siguiente:\ref{table:ImagenesNumero}.
+Es importante mencionar que, aunque las imágenes en general eran borrosas, las del 
+conjunto de entrenamiento resultaron ser menos complejas que las del conjunto de 
+prueba. De hecho, estas últimas fueron difíciles de clasificar incluso para el 
+experto. Una vez creados los \textit{bounding boxes}, se procedió a recortar las 
+imágenes. Como resultado de este proceso, se obtuvieron diferentes cantidades de 
+imágenes por clase, como se muestra en la tabla \ref{table:ImagenesNumero}:
 \\
 \begin{table}[h!]
 \footnotesize
@@ -51,13 +68,30 @@ Especie                                                            & \multicolum
 \label{table:ImagenesNumero}
 \end{table}
 
-Una observación crucial que debe ser mencionada es la presencia de heterogeneidad en ambos \textit{datasets}, lo cual se asemeja a la realidad, ya que algunos de los peces son más difíciles de capturar que otros. Por lo tanto, este caso de estudio también involucra otros desafíos, como clases desequilibradas y un número bajo de imágenes, lo que puede provocar \textit{overfitting} en muchos casos, ya que debido a la disparidad de clases y la complejidad de los modelos, existe la posibilidad que se categorice las clases con más instancias \cite{Overfitting}.
+Una observación crucial que debe ser mencionada es la presencia de heterogeneidad en 
+ambos \textit{datasets}, lo cual se asemeja a la realidad, ya que algunos de los peces 
+son más difíciles de capturar que otros. Por lo tanto, este caso de estudio también involucra otros desafíos, como clases desequilibradas y un número bajo de imágenes, lo que puede provocar \textit{overfitting} en muchos casos, ya que debido a la disparidad de clases y la complejidad de los modelos, existe la posibilidad que se categorice las clases con más instancias \cite{Overfitting}.
 
-\section{Evaluación de detectores }
-En esta primera experimentación se realizarán pruebas con 3 diferentes modelos: Yolov5 preentrenado con el \textit{dataset} ``Objects 365'', UniDet y Yolov5 entrenado con nuestro \textit{dataset}. Para ello, se obtuvo un conjunto aleatorio del 80\% y 20\% de las imágenes recortadas entre el conjunto de entrenamiento y prueba, mientras que para el entrenamiento del Yolov5, se utilizaron todos los datos de entrenamiento y prueba.
+\section{Evaluación de Detectores }
+En esta primera experimentación se realizarán pruebas con 3 diferentes modelos: Yolov5 
+preentrenado con el \textit{dataset} ``Objects 365'', UniDet y Yolov5 entrenado con 
+nuestro \textit{dataset}. Para ello, se obtuvo un conjunto aleatorio del 80\% y 20\% de 
+las imágenes recortadas entre el conjunto de entrenamiento y prueba, mientras que para el 
+entrenamiento del Yolov5, se utilizaron todos los datos de entrenamiento y prueba.
 
 \subsection{Extracción de imágenes por el detector} 
-Una vez obtenidos el 80\% y 20\% de las imágenes del \textit{dataset} ``\textit{The Nature Conservancy}'' en donde se unificaron los conjuntos de entrenamiento y prueba (acción que se justificará en la sección 5.4.1 y que está evidenciada en el anexo \ref{appendix}). se utilizaron tres diferentes detectores para el recorte de las imágenes. Para cada uno de ellos, se clasificaron los recortes por la etiqueta de la imagen de la cual fueron obtenidas y las que eran de prueba fueron nuevamente etiquetados por el experto. Por otra parte, todas las imágenes recortadas que no contenían un pez dentro, no estaban enfocadas o no contenían perfectamente al pez, fueron etiquetadas como errores. Para esta experimentación se utilizaron dos yolov5 (uno preentrenado con Objects365 y uno entrenado con el \textit{dataset}) y un UniDet, entrenado con COCO, Objects 365 y OpenImages. Los datos obtenidos fueron recopilados en la tabla \ref{table:peces}. Cabe resaltar que el yolov5 entrenado fue utilizado como detector general (ignorando las clases que predecía).
+Una vez obtenidos el 80\% y 20\% de las imágenes del \textit{dataset} 
+``\textit{The Nature Conservancy}'' en donde se unificaron los \textit{datasets} de entrenamiento 
+y prueba (acción que se justificará en la sección 5.4.1 y que está evidenciada en el anexo 
+\ref{appendix}). se utilizaron tres diferentes detectores para el recorte de las imágenes. 
+Para cada uno de ellos, se clasificaron los recortes por la etiqueta de la imagen de la cual 
+fueron obtenidas y las que eran de prueba fueron nuevamente etiquetados por el experto. Por 
+otra parte, todas las imágenes recortadas que no contenían un pez dentro, no estaban enfocadas 
+o no contenían perfectamente al pez y fueron etiquetadas como errores. Para esta experimentación 
+se utilizaron dos yolov5 (uno preentrenado con Objects365 y uno entrenado con el \textit{dataset}) 
+y un UniDet, entrenado con COCO, Objects 365 y OpenImages. Los datos obtenidos fueron 
+recopilados en la tabla \ref{table:peces}. Cabe resaltar que el yolov5 entrenado fue utilizado 
+como detector general (ignorando las clases que predecía).
 \\
 \begin{table}[h!]
 \footnotesize
@@ -91,13 +125,13 @@ Como se esperaba, utilizar un modelo preentrenado no especializado en detectar u
 \label{table:pecesPorcentaje}
 \end{table}
 
-Se puede ver una baja precisión por parte del yolov5 preentrenado, lo cual es comprensible considerando que no ha sido preentrenado especialmente para detectar peces, sino con un \textit{dataset} genérico y es un modelo bastante ligero. UniDet, en cambio, es un modelo mucho más complejo, y tiene 3 detectores internamente (uno para cada dataset), los cuales en conjunto predicen la clase final del objeto y es por lo cual generan un mejor resultado que el anterior pero a un costo mucho mayor. Finalmente el yolov5 entrenado específicamente con el \textit{dataset} obtenido muestra una especialización en la detección de estos individuos que finalmente logra un 79.45\% de precisión. Aún así se necesita considerar el hecho que el entrenamiento de este modelo tomo alrededor de 80 minutos, siendo este aproximadamente 13 veces más el tiempo que le toma entrenar a un modelo como lo es EfficientnetB0 con un bajo número de imágenes(4300 imágenes, a comparación de 5300 para el CNN).
+Se puede ver una baja precisión por parte del Yolov5 preentrenado, lo cual es comprensible considerando que no ha sido preentrenado especialmente para detectar peces, sino con un \textit{dataset} genérico y es un modelo bastante ligero. UniDet, en cambio, es un modelo mucho más complejo, y tiene 3 detectores internamente (uno para cada dataset), los cuales en conjunto predicen la clase final del objeto y es por lo cual generan un mejor resultado que el anterior pero a un costo mucho mayor. Finalmente el Yolov5 entrenado específicamente con el \textit{dataset} obtenido muestra una especialización en la detección de estos individuos que finalmente logra un 79.45\% de precisión. Aún así se necesita considerar el hecho que el entrenamiento de este modelo tomo alrededor de 80 minutos, siendo este aproximadamente 13 veces más el tiempo que le toma entrenar a un modelo como lo es EfficientnetB0 con un bajo número de imágenes(4300 imágenes, a comparación de 5300 para el CNN).
 \\\\
 
 Además, al considerar el porcentaje de errores generados, se observa que UniDet produce una menor cantidad de detecciones incorrectas en comparación con \textit{pretrained} YOLOv5 y \textit{trained} YOLOv5, lo que demuestra que es un modelo más robusto. Sin embargo, debido a la falta de especialización durante su entrenamiento, UniDet ofrece resultados más pobres en las detecciones. En este sentido, se cree que si tuviéramos los pesos de un modelo específicamente entrenado para la detección de peces, se mejoraría el resultado y se evitaría la necesidad de entrenar uno desde cero o utilizar uno que haya sido entrenado de manera genérica. Esto aumentaría la precisión general del sistema y tendría un impacto positivo en el flujo de trabajo.
 \\\\
 
-\section{Evaluación de desempeño de diferentes clasificadores}
+\section{Evaluación de Desempeño de Diferentes Clasificadores}
 En la presente sección se realizarán dos experimentos para poder seleccionar una arquitectura que será utilizada para actuar como nuestro clasificador dentro del \textit{pipeline} final. Para ello, se compararán algunas arquitecturas del estado del arte utilizando los 3 \textit{datasets}, analizando tanto las pérdidas y precisión en \textit{training}, \textit{validation} y \textit{testing} para cada uno, así como la velocidad por batch (8 imágenes) y el número de épocas necesarias para entrenar dichas arquitecturas. 
 \subsection{Arquitectura general}
 Como fue mencionado, para la creación de cada una de las arquitecturas se utilizarán modelos ya preentrenados del estado del arte, a los cuales se les aplicará TL para su entrenamiento con nuestro \textit{dataset}. Este proceso consistirá en congelar todas las capas convolucionales, para luego ser pasado por una capa de \textit{GlobalAveragePooling2D}, luego por una \textit{Flatten}, la cual pasa de un formato bidimensional a uno unidimensional y luego por las siguientes tres capas: 
@@ -123,8 +157,17 @@ La primera de las métricas a comparar serán las gráficas de pérdida. En la f
 \end{figure}
 
 
-En esta gráfica se puede ver que los modelos que consiguen mejores descensos en esta métrica son tanto Resnet50, Vgg19 y EfficientnetB0, lo cual era bastante esperado conforme a la teoría, salvo por el Vgg19. Otro detalle interesante que salió a relucir de esta experimentación fue que InceptionV3 y Xception tuvieron una pérdida bastante elevada, contrario a lo que se esperaba en un inicio, lo cual podría ser motivo de análisis en un futuro para saber cuales fueron los motivos por los cuales no consiguieron aprender del \textit{dataset}. Por último, se puede ver como las dos MobileNet están en el medio de todas las demás redes analizadas, lo cual, es un dato a resaltar considerando lo ligero que son . \\\\
-También se obtuvieron algunos otros datos que fueron recopilados en la tabla \ref{table:data1}.
+En esta gráfica se puede ver que los modelos que consiguen mejores descensos en esta 
+métrica son tanto Resnet50, Vgg19 y EfficientnetB0, lo cual era bastante esperado conforme 
+a la teoría, salvo por el Vgg19. Otro detalle interesante que salió a relucir de esta 
+experimentación fue que InceptionV3 y Xception tuvieron una pérdida bastante elevada, 
+contrario a lo que se esperaba en un inicio, lo cual podría ser motivo de análisis en un 
+futuro para saber cuales fueron los motivos por los cuales no consiguieron aprender del 
+\textit{dataset}. Por último, se puede ver como las dos MobileNet están en el medio de 
+todas las demás redes analizadas, lo cual, es un dato a resaltar considerando lo ligero que 
+son. \\\\
+
+También se obtuvieron las siguientes métricas que fueron recopiladas en la tabla \ref{table:data1}.
 
 \begin{table}[h!]
 \footnotesize
@@ -144,13 +187,30 @@ También se obtuvieron algunos otros datos que fueron recopilados en la tabla \r
 \end{table}
 
 
-Esta tabla también proporciona datos interesantes sobre la experimentación. En primer lugar, Vgg19 tuvo la mayor pérdida entre todos los modelos, pero logró una precisión bastante aceptable en términos de entrenamiento, mientras que su precisión en validación y prueba fue casi perfecta. En segundo lugar, siguiendo con el análisis anterior, se observa que InceptionV3 y Xception obtuvieron resultados acordes a su pérdida en términos de precisión general. \\\\
-Otro punto a resaltar es el hecho que ambos MobileNet obtienen un resultado bastante similar en términos de precisión en general, pero MobileNetV2 obtiene una pequeña diferencia, la cual la hace mejor que su versión anterior, pero a un costo en términos de velocidad, lo cual también se esperaba conforme a la teoría. Por último, cabe señalar que los tres modelos que obtuvieron la mejor precisión fureon EfficientnetB0, Resnet50 y Vgg19 respectivamente.\\\\
+Esta tabla también proporciona datos interesantes sobre la experimentación. En primer lugar, 
+Vgg19 tuvo la mayor pérdida entre todos los modelos, pero logró una precisión bastante 
+aceptable en términos de entrenamiento, mientras que su precisión en validación y prueba 
+fue casi perfecta. En segundo lugar, siguiendo con el análisis anterior, se observa que 
+InceptionV3 y Xception obtuvieron resultados acordes a su pérdida en términos de precisión 
+general. \\\\
+Otro punto a resaltar es el hecho que ambos MobileNet obtienen un resultado bastante similar 
+en términos de precisión en general, pero MobileNetV2 obtiene una pequeña diferencia, la cual 
+la hace mejor que su versión anterior, pero a un costo en términos de velocidad, lo cual 
+también se esperaba conforme a la teoría. Por último, cabe señalar que los tres modelos que 
+obtuvieron la mejor precisión en pruebas fueron EfficientnetB0, Resnet50 y Vgg19 respectivamente.\\\\
 A manera de conclusión, se pudo ver que con un \textit{dataset} relativamente sencillo, se puede obtener resultados bastante favorables, que logran casi a su totalidad automatizar este tipo de problemas con modelos ya pre-entrenados que son facilmente modificables para su uso.
 
 \subsection{Experimentación \#2}
 
-Para este segundo análisis, se  utilizaron las imágenes obtenidas del  \textit{datasets} \textit{The Nature Conservancy Fisheries Monitoring}. Dentro de estas imágenes se podrían encontrar muchos peces de la misma especie por imagen. En ese sentido la labor del clasificador será identificar si esta imagen contiene ejemplares de un determinado pez en ella. Para este experimento, únicamente se tomaron los \textit{datasets} de entrenamiento y validación, ya que el de testeo no contenía etiquetas, pero será utilizado en futuras experimentaciones.  De la misma manera que en la anterior experimentación, primero se procederá a analizar las gráficas de error, tal como se ven en la imagen \ref{fig:losses2}.
+Para este segundo análisis, se  utilizaron las imágenes obtenidas del \textit{datasets} 
+\textit{The Nature Conservancy Fisheries Monitoring}. Dentro de estas imágenes se podrían 
+encontrar muchos peces de la misma especie por imagen. En ese sentido la labor del 
+clasificador será identificar si esta imagen contiene ejemplares de un determinado 
+pez en ella. Para este experimento, únicamente se tomaron los \textit{datasets} de 
+entrenamiento y validación, ya que el de testeo no contenía etiquetas, pero será 
+utilizado en futuras experimentaciones.  De la misma manera que en la anterior 
+experimentación, primero se procederá a analizar las gráficas de error, tal como se 
+ven en la imagen \ref{fig:losses2}.
 \begin{figure}[h!]
 \includegraphics[width=1\textwidth]{images/loss2.png}
 \centering
@@ -183,10 +243,20 @@ Considerando los resultados obtenidos, proponemos el uso de EfficientnetB0 para 
 
 \section{Experimentación del clasificador}
 
-En esta sección se llevaron a cabo 5 experimentos con el objetivo de validar y obtener un modelo entrenado basado en la arquitectura seleccionada en la sección anterior, con el fin de maximizar la precisión al entrenarlo con las imágenes recortadas. Dos de los experimentos se realizaron debido a una distribución inadecuada de los datos entre el conjunto de entrenamiento y el de pruebas. Estos dos experimentos se separaron y se mencionan en la sección de anexos para evitar interferencias con la continuidad de los demás experimentos.
+En esta sección se llevaron a cabo 5 experimentos con el objetivo de validar y 
+obtener un modelo entrenado basado en la arquitectura seleccionada en la sección anterior, 
+con el fin de maximizar la precisión al entrenarlo con las imágenes recortadas. Dos de los 
+experimentos se realizaron debido a una distribución inadecuada de los datos entre el 
+\textit{dataset} de entrenamiento y el de pruebas. Estos dos experimentos se separaron y se 
+mencionan en la sección de anexos para evitar interferencias con la continuidad de los demás 
+experimentos.
 \subsection{Experimentación \#1 (training/validation)}
 
-En el primer experimento se emplearon únicamente las imágenes recortadas del conjunto de entrenamiento para comprobar la capacidad de aprendizaje del modelo. De estas imágenes, se seleccionó una parte para ser utilizada como conjunto de validación. En esta prueba, se llevaron a cabo 10 iteraciones utilizando el algoritmo de K-Fold para la muestra y se obtuvieron los resultados que se presentan en la tabla \ref{table:KFolds1}
+En el primer experimento se emplearon únicamente las imágenes recortadas del \textit{dataset} 
+de entrenamiento para comprobar la capacidad de aprendizaje del modelo. De estas imágenes, 
+se seleccionó una parte para ser utilizada como conjunto de validación. En esta prueba, 
+se llevaron a cabo 10 iteraciones utilizando el algoritmo de K-Fold para la muestra y se 
+obtuvieron los resultados que se presentan en la tabla \ref{table:KFolds1}
 \\
 
 \begin{table}[h!]
@@ -212,7 +282,7 @@ En el primer experimento se emplearon únicamente las imágenes recortadas del c
 \end{table}
 Con estos resultados, podemos observar que al ejecutar el mismo modelo varias veces, se obtienen resultados similares, lo que demuestra que no hay \textit{overfitting} y que el modelo no ha sido influenciado por la aleatoriedad en la inicialización de los pesos. Además, al evaluar imágenes de manera individual, se logra aumentar la precisión del modelo en comparación con la clasificación de imágenes completas.
 \\\\
-A continuación, se procedió a experimentar con el \textit{dataset} de \textit{testing} para poder comprobar si el modelo generó buenos resultados al predecir las clases de las imágenes recortadas. Por el contrario, se comprobó que pertenecían a distribuciones de datos muy diferentes. En el \textit{dataset} de prueba se tenían imágenes en diferentes entornos, con menor visibilidad y mayor falta de características distintivas de las especies estudiadas, entre otros factores que dificultaban el aprendizaje. Para poder comprobarlo, se realizaron las experimentaciones \#2 y \#3 (detalladas en el anexo \ref{appendix}). Se obtuvo que el modelo predijo a las imágenes complejas como ``bonito'' (\textit{Albacore Tuna}), ya que en el \textit{dataset} de entrenamiento había una mayor cantidad de estas imágenes, por lo que era estadísticamente más probable acertar de ese modo. Además, estas imágenes eran las que presentaban más defectos dentro del conjunto. En ese sentido se cambio el enfoque de las experimentaciones siguientes.
+A continuación, se procedió a experimentar con el \textit{dataset} de \textit{testing} para poder comprobar si el modelo generó buenos resultados al predecir las clases de las imágenes recortadas. Por el contrario, se comprobó que pertenecían a distribuciones de datos muy diferentes. En el \textit{dataset} de prueba se tenían imágenes en diferentes entornos, con menor visibilidad y mayor falta de características distintivas de las especies estudiadas, entre otros factores que dificultaban el aprendizaje. Para poder comprobarlo, se realizaron las experimentaciones A y B (detalladas en el anexo \ref{appendix}). Se obtuvo que el modelo predijo a las imágenes complejas como ``bonito'' (\textit{Albacore Tuna}), ya que en el \textit{dataset} de entrenamiento había una mayor cantidad de estas imágenes, por lo que era estadísticamente más probable acertar de ese modo. Además, estas imágenes eran las que presentaban más defectos dentro del conjunto. En ese sentido se cambio el enfoque de las experimentaciones siguientes.
 \\\\
 \subsection{Expermientación \#2 (extracción de datasets desde \textit{training}) }
 Considerando lo anteriormente expuesto, se decidió dividir el conjunto de datos de entrenamiento en tres conjuntos diferentes: entrenamiento, validación y prueba, utilizando una proporción del 70\% para entrenamiento, 20\% para validación y 10\% para pruebas. El objetivo de esta nueva división fue comprobar si la suposición previa de que el problema era causado por el uso de conjuntos de datos con diferentes distribuciones era correcta. Los resultados obtenidos se muestran en la tabla \ref{table:Results4}.
@@ -268,7 +338,7 @@ Como se puede apreciar en la matriz de confusión, en general se obtuvo una buen
 \end{figure}
 
 
-Las gráficas muestran un aprendizaje constante, lo que refuerza la conclusión de que la red está aprendiendo correctamente, evitando aprender en exceso de ciertas clases e incluso obteniendo resultados positivos con las clases que tienen menor cantidad de imágenes. Además, es importante destacar que, en comparación con los experimentos previos del clasificador, estas nuevas redes están tardando más épocas en aprender de los datos debido a la complejidad de los mismos.
+Las gráficas muestran un aprendizaje constante, lo que refuerza la conclusión de que la red está aprendiendo correctamente, evitando aprender en exceso de ciertas clases e incluso obteniendo resultados positivos con las clases que tienen menor cantidad de imágenes. Además, es importante destacar que, en comparación con los experimentos previos del clasificador, estas nuevas redes podrían estar tardando más épocas en aprender de los datos debido a la complejidad de los mismos.
 
 \subsection{Expermientación \#3 (extracción de datasets desde \textit{training}+\textit{testing})}
 Con los resultados del anterior experimento se planteó unificar ambos \textit{datasets} y en base a esa nueva distribución de datos realizar la separación de los \textit{datasets }de \textit{training}, \textit{validation} y \textit{testing}. Dicha separación se realizó con los mismos porcentajes del anterior experimento. Al ejecutar la prueba, se obtuvieron los resultados de la tabla \ref{table:Results5}
@@ -345,36 +415,35 @@ A continuación se presentarán los resultados obtenidos para cada uno de los mo
 \label{table:estadisticosPipeline}
 \end{table}
 
-Los resultados obtenidos muestran que el \textit{pipeline} funciona relativamente bien con todos los diferentes detectores, generando un \textit{balanced accuracy} bastante elevado. Por otra parte, se puede ver que los \textit{pipelines} que utilizaban los detectores preentrenados obtuvieron un resultado similar, aunque peor que el que usabe el detector entrenado. Esto es debido a que los \textit{bounding boxes} generados por el modelo entrenado coincidían con las imágenes recortadas con las que se entrenó el clasificador, mientras que UniDet generaba resultados aproximados. Por otra parte el yolov5 preentrenado los generaba de manera muy justa, haciendo necesario que sean preprocesadas antes de ser ingresados al clasificador, por lo que también eran aproximados.
-Además se obtuvieron las matrices de confusión(tablas \ref{fig:confusionMatrix1}, \ref{fig:confusionMatrix2} y \ref{fig:confusionMatrix3}) de cada uno de los experimentos, los cuales se muestran a continuación:
+Los resultados obtenidos muestran que el \textit{pipeline} funciona relativamente bien con todos los diferentes detectores, generando un \textit{balanced accuracy} bastante elevado. Por otra parte, se puede ver que los \textit{pipelines} que utilizaban los detectores preentrenados obtuvieron un resultado similar, aunque peor que el que usabe el detector entrenado. Esto es debido a que los \textit{bounding boxes} generados por el modelo entrenado coincidían con las imágenes recortadas con las que se entrenó el clasificador, mientras que UniDet generaba resultados aproximados. Por otra parte el Yolov5 preentrenado los generaba de manera muy justa, haciendo necesario que sean preprocesadas antes de ser ingresados al clasificador, por lo que también eran aproximados.
+Además se obtuvieron las matrices de confusión (Tablas \ref{fig:confusionMatrix1}, \ref{fig:confusionMatrix2} y \ref{fig:confusionMatrix3}) de cada uno de los experimentos, los cuales se muestran a continuación:
 
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.8\textwidth]{images/yolo_conf_matrix.jpg}
-\caption{Matriz de confusión para el testeo del \textit{pipeline con yolov5 preentrenado} }
+\caption{Matriz de confusión para pruebas del \textit{pipeline} con Yolov5 preentrenado }
 \label{fig:confusionMatrix1}
 \end{figure}
 
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.8\textwidth]{images/UniDet_conf_matrix.jpg}
-\caption{Matriz de confusión para el testeo del \textit{pipeline con UnIDet preentrenado} }
+\caption{Matriz de confusión para el testeo del \textit{pipeline} con UnIDet preentrenado }
 \label{fig:confusionMatrix2}
 \end{figure}
 
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.8\textwidth]{images/yoloTrained3_conf_matrix.jpg}
-\caption{Matriz de confusión para el testeo del \textit{pipeline con yolov5 entrenado} }
+\caption{Matriz de confusión para el testeo del \textit{pipeline} con Yolov5 entrenado }
 \label{fig:confusionMatrix3}
 \end{figure}
-
 En general, se comprobó que el clasificador cumplió su función correctamente de clasificar las imágenes que le fueron proporcionadas por el detector. Aún así, la precisión de este radica en lo bien que fueron detectados los peces dentro de las imágenes. En ese sentido podemos ver que el aplicar este \textit{pipeline} generaría una pérdida en la precisión a comparación de entrenar un modelo de un 10\% a 28\% (que podría variar dependiendo del detector usado y del tratamiento de los \textit{bounding boxes}) en imágenes complejas como las que se tienen(sería conveniente realizar pruebas en imágenes menos complejas).
 
 \section{Evaluación}
 
 Finalmente, se comparó los resultados en términos de precisión final y el error generado de los modelos, tomando en cuenta la siguiente fórmula:
-
+\newline
 $$ precision\_final = \frac{peces\_detectados * accuracy\_clasificador}{imagenes\_reales}$$
 
 Siguiendo esta métrica, y el porcentaje de error en la detección, se obtuvo la tabla de resultados final \ref{table:resultadosFinales}:

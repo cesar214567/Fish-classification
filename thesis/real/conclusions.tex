@@ -19,13 +19,17 @@ se obtuvo un menor error en la detección hecha por Unidet en general, siendo es
 Considerando los resultados obtenidos podemos afirmar que el performance y 
 la precisión del \textit{pipeline} dependerá del modelo preentrenado para el detector, 
 ya que el clasificador logrará clasificar correctamente (en su mayoría de veces) para lo 
-que fue entrenado. 
-En base a ellos, se logró desarrollar una aplicación en tiempo real, el cual 
-permitió automatizar el proceso de etiquetado para imágenes y videos.
+que fue entrenado. En base a ellos, se logró desarrollar una aplicación en tiempo real, 
+el cual permitió automatizar el proceso de etiquetado para imágenes y videos.
+
+Cabe recalcar que la intención de este \textit{pipeline} no es reemplazar o mejorar al 
+sistema basado únicamente en YOLO, sino ser un sustituto real en casos en donde 
+se tenga un \textit{dataset} sin etiquetar y se quiera generar una solución a un 
+problema de localización y clasificación de objetos. 
 
 \section{Trabajos futuros}
 
-Algunas de las limitaciones que se tiene con este modelo consiste en que el 
+Algunas de las limitaciones que se tiene con este modelo consisten en que el 
 \textit{pipeline} depende casi completamente del detector escogido, de tal 
 manera que se necesita poder obtener uno bastante robusto y entrenado de 
 manera general o incluso mejor si está especialmente entrenado para detectar 
@@ -48,7 +52,7 @@ para poder analizar como se comporta el \textit{pipeline} con respecto al
 Por último, este trabajo se realizó con un \textit{dataset} de peces peruanos 
 (en su mayoría) pero consistía de un bajo número de imágenes y consistían de 
 una distribución de datos muy complejas. En ese sentido, el error y la 
-precisión obtenido también contemplaban \textit{bias} debido a estos factores. 
+precisión obtenidos también contemplaban \textit{bias} debido a estos factores. 
 Es por ello que se recomendaría replicar las experimentaciones realizadas en 
 el presente documento pero con un \textit{dataset} que incluya un número de 
 especies e imágenes mayor para poder calcular como es que esto influye en la 

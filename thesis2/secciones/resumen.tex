@@ -1,0 +1,29 @@
+\chapter*{\center \Large \vspace{-4.5cm} RESUMEN}
+\addcontentsline{toc}{section}{\bfseries RESUMEN}
+\markboth{RESUMEN}{RESUMEN} 
+
+\textit{Machine Learning} (ML) se destaca como una herramienta 
+fundamental para la detección y clasificación de imágenes. 
+Sin embargo, el entrenamiento de modelos avanzados requiere 
+una gran cantidad de imágenes etiquetadas y una capacidad 
+computacional significativa. Esta tarea resulta especialmente 
+desafiante en el contexto de la fauna marina peruana, debido 
+a la escasez de conjuntos de datos etiquetados. Para abordar esta problemática, 
+se desarrolló un etiquetador automático de peces basado en un 
+\textit{pipeline} de \textit{Deep Learning} (DL). 
+Este \textit{pipeline} utiliza un detector preentrenado (YoloV5 y Unidet) 
+y una red EfficientNetB0, clasificador basado en 
+\textit{Convolutional Neural Networks} (CNN's). 
+La selección del clasificador se basó en un análisis exhaustivo de diversos 
+modelos del estado del arte, considerando el tamaño en memoria, 
+el número de parámetros y la precisión obtenida con los conjuntos 
+de datos de la investigación. Los resultados prácticos mostraron 
+una precisión parcial del detector del 79.45\%, mientras que el 
+clasificador alcanzó un 91.47\%, generando así una precisión final 
+del 72.67\%. Además, se logró un error mínimo del 22.54\% y se 
+desarrolló una aplicación en tiempo real que alcanzó hasta 8 fps, 
+lo que permitió automatizar la tarea de etiquetado de imágenes.
+
+
+\noindent \textbf{Palabras clave:}\\
+\noindent Machine Learning; Deep Learning; Detectores; CNN's; Pipelines; Etiquetado Automático;

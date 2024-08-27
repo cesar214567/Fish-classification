@@ -128,7 +128,15 @@ Como se esperaba, utilizar un modelo preentrenado no especializado en detectar u
 Se puede ver una baja precisión por parte del Yolov5 preentrenado, lo cual es comprensible considerando que no ha sido preentrenado especialmente para detectar peces, sino con un \textit{dataset} genérico y es un modelo bastante ligero. UniDet, en cambio, es un modelo mucho más complejo, y tiene 3 detectores internamente (uno para cada dataset), los cuales en conjunto predicen la clase final del objeto y es por lo cual generan un mejor resultado que el anterior pero a un costo mucho mayor. Finalmente el Yolov5 entrenado específicamente con el \textit{dataset} obtenido muestra una especialización en la detección de estos individuos que finalmente logra un 79.45\% de precisión. Aún así se necesita considerar el hecho que el entrenamiento de este modelo tomo alrededor de 80 minutos, siendo este aproximadamente 13 veces más el tiempo que le toma entrenar a un modelo como lo es EfficientnetB0 con un bajo número de imágenes(4300 imágenes, a comparación de 5300 para el CNN).
 \\\\
 
-Además, al considerar el porcentaje de errores generados, se observa que UniDet produce una menor cantidad de detecciones incorrectas en comparación con \textit{pretrained} YOLOv5 y \textit{trained} YOLOv5, lo que demuestra que es un modelo más robusto. Sin embargo, debido a la falta de especialización durante su entrenamiento, UniDet ofrece resultados más pobres en las detecciones. En este sentido, se cree que si tuviéramos los pesos de un modelo específicamente entrenado para la detección de peces, se mejoraría el resultado y se evitaría la necesidad de entrenar uno desde cero o utilizar uno que haya sido entrenado de manera genérica. Esto aumentaría la precisión general del sistema y tendría un impacto positivo en el flujo de trabajo.
+Además, al considerar el porcentaje de errores generados, se observa que UniDet produce 
+una menor cantidad de detecciones incorrectas en comparación con YOLOv5 preentrenado y 
+YOLOv5 entrenado, lo que demuestra que es un modelo más robusto. Sin embargo, debido a 
+la falta de especialización durante su entrenamiento, UniDet ofrece resultados más pobres 
+en las detecciones. En este sentido, se cree que si tuviéramos los pesos de un modelo 
+específicamente entrenado para la detección de peces, se mejoraría el resultado y se 
+evitaría la necesidad de entrenar uno desde cero o utilizar uno que haya sido entrenado 
+de manera genérica. Esto aumentaría la precisión general del sistema y tendría un 
+impacto positivo en el flujo de trabajo.
 \\\\
 
 \section{Evaluación de Desempeño de Diferentes Clasificadores}

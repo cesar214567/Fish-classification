@@ -1,0 +1,33 @@
+\chapter*{\center \Large RECOMENDACIONES} 
+\addcontentsline{toc}{section}{\bfseries RECOMENDACIONES} 
+\markboth{RECOMENDACIONES}{RECOMENDACIONES} 
+
+Algunas de las limitaciones que se tiene con este modelo consisten en que el 
+\textit{pipeline} depende casi completamente del detector escogido, de tal 
+manera que se necesita poder obtener uno bastante robusto y entrenado de 
+manera general o incluso mejor si está especialmente entrenado para detectar 
+las clases que se están estudiando. De esta manera, se generarían buenas 
+entradas para el clasificador, reduciendo el efecto que este tendría en el 
+\textit{pipeline} final. En ese sentido, sería bueno poder realizar más 
+experimentos con diferentes arquitecturas y modelos preentrenados que incluya 
+la clase peces.
+\\\\
+De la misma manera, actualmente existen ciertos \textit{datasets} que son 
+ampliamente utilizados para la investigación y creación de aplicaciones de 
+DL, mientras que otros presentan pocas implementaciones, lo que hace más 
+complicado la obtención de modelos preentrenados con las clases genéricas 
+requeridas (por ejemplo, peces). En ese sentido, otro trabajo futuro 
+consistiría en poder utilizar este etiquetador para crear un \textit{dataset} 
+con la clase genérica de peces e incrementar una capa de atención a los modelos 
+para poder analizar como se comporta el \textit{pipeline} con respecto al 
+\textit{accuracy} parcial y final.   
+\\\\
+Por último, este trabajo se realizó con un \textit{dataset} de peces peruanos 
+(en su mayoría) pero consistía de un bajo número de imágenes y consistían de 
+una distribución de datos muy complejas. En ese sentido, el error y la 
+precisión obtenidos también contemplaban \textit{bias} debido a estos factores. 
+Es por ello que se recomendaría replicar las experimentaciones realizadas en 
+el presente documento pero con un \textit{dataset} que incluya un número de 
+especies e imágenes mayor para poder calcular como es que esto influye en la 
+precisión, el costo de entrenamiento y si se necesita mejorar o incrementar 
+algunas capas del modelo.

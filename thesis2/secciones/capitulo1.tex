@@ -1,0 +1,117 @@
+\chapter{INTRODUCCI\'ON}
+
+En los últimos años \textit{Machine Learning} (ML) ha ganado  
+mayor importancia debido a su capacidad para aprender patrones, 
+realizar regresiones y, especialmente, al potencial de los diferentes 
+modelos de detección y clasificación de objetos. En este contexto, \textit{Deep Learning} (DL), 
+una subárea del ML, ha demostrado ser superior al humano en diversas 
+aplicaciones como el reconocimiento de rostros, números, lugares e incluso fauna y flora.
+\newline
+\newline
+Actualmente, existen muchas aplicaciones a nivel global en el contexto de la fauna marina. 
+Por ejemplo, algunos trabajos previos han utilizado DL para incrementar la investigación de 
+recursos pesqueros, obtener conocimiento sobre poblaciones, procesar la acuicultura, proteger 
+especies en peligro de extinción y mantener la pesquería sostenible, entre otros
+\cite{10.1145/3419635.3419643, 10.1145/3325917.3325934,20.500.12724/11174,8371919}.
+\newline
+\newline
+Dentro de estos trabajos, Nibha Manandhar y J. W. Burris , además de 
+Mejia y Rosales utilizaron \textit{Transfer Learning} (TL)para crear sus modelos, 
+una técnica inspirada en el trabajo de Chen Guang, 
+\textit{et al}. Además, se han investigado modelos para la 
+clasificación en el fondo marino, como el estudio de Suxia Cui, 
+\textit{et al}. \cite{Cui2020}, quienes emplearon \textit{ImageNet} \cite{ImageNet} como 
+\textit{dataset} de imágenes para su entrenamiento. 
+\newline
+\newline
+Siguiendo el camino trazado por las investigaciones anteriores, sería conveniente explorar 
+los posibles usos en el contexto peruano, similar a lo que se hace a nivel 
+mundial, para optimizar o automatizar los procesos actuales de detección y 
+clasificación. Sin embargo, en el área de la clasificación de fauna marina 
+peruana, Mejía y Rosales han sido los únicos en 
+realizar investigaciones sobre \textit{pipelines} de ML y visión 
+computacional hasta es de nuestro conocimiento. Ellos analizaron modelos con 
+un gran costo computacional en tiempo de inferencia lo cual los hace poco 
+factibles para su recreación en tiempo real. 
+\newline
+\newline
+Además del uso de modelos complejos en el estado del arte, existe una escazes 
+de imágenes que incluyan múltiples especies dentro de la fauna marina peruana. 
+Esto debido a que es necesario un proceso de etiquetado, que consiste en la creación 
+de recuadros (\textit{bounding boxes}) conteniendo al pez y su respectiva clase.
+Esta tarea debe ser realizada por personas expertas que podrían o no tener experiencia 
+tecnológica, lo que dificulta aún más poder realizar avances en esta área o entrenar 
+los modelos de vanguardia para la fauna peruana. 
+\newline
+\newline
+Por lo tanto, en este trabajo se propone desarrollar un \textit{pipeline} 
+para el etiquetado automático en imágenes de especies marinas peruanas. 
+La finalidad de este \textit{pipeline} es evitar la necesidad de un 
+\textit{dataset} etiquetado, generar una mayor escalabilidad de estos 
+modelos, generar un menor costo computacional y reducir la pérdida de 
+precisión. Estas mejoras ayudarán a facilitar el uso a personas sin experiencia 
+en tecnología, permitiendoles ejecutar el \textit{pipeline} en tiempo real 
+en la detección, clasificación y etiquetado de la fauna marina peruana. 
+\newline
+\newline
+La estructura del documento se compone de: contexto y motivación, marco 
+teórico, revisión de la literatura, metodología, experimentos y resultados, 
+y por último, conclusiones y trabajos futuros.
+
+
+\section{Descripción del problema}
+
+Muchos investigadores en el campo del aprendizaje profundo (DL) 
+han centrado sus esfuerzos en mejorar la precisión de sus modelos. Para 
+lograrlo, han creado redes cada vez más complejas y con requisitos más 
+exigentes para su entrenamiento. Dentro de ellos, los modelos de detección 
+y clasificación actualmente requieren un \textit{dataset} etiquetado para su 
+entrenamiento. Este proceso de etiquetado suele ser largo, costoso y precisa de  
+especialistas, los cuales cuentan a su vez la posibilidad de cometer 
+errores humanos. Todos estos problemas han dificultado la creación de 
+\textit{datasets} peruanos para entrenar los modelos de vanguardia que pueden 
+requerir miles de imágenes por especie, lo cual se puede evidenciar en la 
+baja cantidad de investigaciones que se han llevado a cabo al respecto. 
+
+\section{Justificación}
+
+La creación de un \textit{pipeline} que permita generar un etiquetado 
+automático en la fauna marina peruana no solo facilitaría la creación 
+nuevos \textit{datasets} relacionados con la fauna marina peruana, sino 
+también la clasificación de objetos en general, los cuales 
+podrían ser disponibilizados a los investigadores para futuros trabajos. 
+Además, este \textit{pipeline} tendría un bajo costo computacional, tanto 
+para su entrenamiento como para su uso en entornos reales, aprovechando el 
+conocimiento previo de redes ya entrenadas y aportando una aplicación para la 
+detección y clasificación de peces peruanos en tiempo real.
+
+\section{Objetivos}
+
+\begin{itemize}
+  \item { Objetivo principal: 
+      \begin{itemize}
+          \item Proponer, desarrollar y probar un 
+              \textit{pipeline} de DL para el etiquetado de imágenes complejas 
+              con múltiples especies de peces en la fauna marina peruana.
+      \end{itemize}
+   }
+   \item { Objetivos secundarios:
+      \begin{itemize}
+          \item Buscar y unificar \textit{datasets} de imágenes de la fauna marina 
+          peruana.
+          \item Realizar un análisis comparativo del \textit{pipeline} propuesto para 
+              distintos detectores y clasificadores del estado del arte. 
+          \item Automatizar el proceso de etiquetado a través de un aplicativo.
+      \end{itemize}
+      }
+\end{itemize}
+
+\section{Aportes}
+
+Este trabajo no solo comparará diferentes arquitecturas 
+de redes neuronales convolucionales (CNN) actuales, lo que facilitará la 
+elección de un modelo para futuros investigadores, sino también proporcionará 
+una solución para agregar especificidad a las clases de los \textit{datasets} 
+de los modelos ya preentrenados. Esta estrategia evitará la necesidad de 
+entrenar modelos más complejos y permitirá etiquetar un conjunto de datos 
+para futuros trabajos.

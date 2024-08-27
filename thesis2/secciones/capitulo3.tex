@@ -1,0 +1,104 @@
+\chapter{REVISI\'ON DE LA LITERATURA}
+
+En el presente capítulo se analizarán los modelos y técnicas de DL 
+para la clasificación de imágenes y su impacto en algunas aplicaciones 
+actuales. Como ya había sido mencionado, los modelos de DL son los que 
+en la actualidad han reemplazado a varios algoritmos y al humano mismo 
+en las diferentes tareas de regresión, clasificación, detección y 
+localización de objetos en imágenes. Esto gracias a su gran precisión 
+en esta tarea y a la automatización que traen a las diferentes empresas 
+e instituciones gubernamentales. \\
+
+Alsmadi y Almarashdeh \cite{Alsmadi2022} lo comprobaron al realizar un 
+\textit{survey} donde revisaban y comparaban trabajos con diferentes 
+enfoques. En la investigación compararon algoritmos de visión 
+computacional, estadística, ML, DL, entre otros, aplicados al contexto de 
+extracción de características, detección y clasificación. Corroboraron 
+que la eficacia y velocidad de los modelos de DL fueron superiores 
+a los demás algoritmos clásicos.\\
+
+Dentro del sub-área de DL, Xiaojuan Lan, \textit{et al}.\cite{10.1145/3419635.3419643} 
+son los autores revisados mas recientes. Ellos diseñaron un modelo utilizando TL en 
+base a Inception-V3,(ver sección \hyperref[sec:inceptionV3]{2.2.2}), para resolver el 
+problema de la clasificación de imágenes borrosas de peces en el fondo marino con una 
+precisión de más del 85\% y de manera más eficiente que otros modelos pre-existentes. 
+Un punto que cabe resaltar de este trabajo es que detallan que utilizaron 
+InceptionV3 como base para el TL, pero no mencionan qué capas del modelo se congelaron y 
+cuales fueron cambiadas para su adaptación a su \textit{dataset} sino que saltan directamente 
+a las conclusiones, dando como resultado la precisión promedio, lo cual podría esconder 
+que ellos obtuviesen un modelo \textit{overfitted}, considerando también la baja cantidad 
+de imágenes de su \textit{dataset}. \\
+
+De la misma manera, Nibha Manandhar y John W. Burris \cite{10.1145/3325917.3325934}, 
+quienes utilizaron las mismas herramientas mencionadas anteriormente, pero enfocándose a 
+una problemática diferente. En vez de predecir si la imagen era de un determinado tipo de 
+pez, predecían si ``la imagen contenía esa determinada especie de pez dentro'', ya 
+que no eran imágenes del hábitat de los peces sino imágenes recuperadas de Google, que 
+podían contener seres humanos u otro entorno y no únicamente el pez. Con este enfoque lograron 
+obtener una precisión del 85\% en la etapa de entrenamiento. \\
+
+
+De la misma manera que en el trabajo de Xiaojuan Lan, \textit{et al}, no especifican a detalle 
+como es que se está realizando el TL en el modelo. Además, en la sección de resultados 
+muestran que se generó una buena precisión solo en algunas especies, mientras que en otras 
+alcanzó alrededor de 50 a 70\% \\
+
+Por último, Guang Chen, \textit{et al}. \cite{8371919} realizaron un modelo en base a 2 ramas, 
+una para la clasificación a nivel de imagen y la otra para la clasificación a nivel de instancia 
+de las imágenes. Mientras que la primera se basaba únicamente en un modelo sencillo de CNN, la 
+segunda se basaba en un proceso de cuatro pasos:
+\begin{itemize}
+    \item Detección: Utilizó los modelos YOLOv2 y SSD, realizando el cálculo de los \textit{bounding boxes}, los cuales contienen coordenadas de las dos esquinas del rectángulo que contiene al pez.
+    \item Estimación de la pose: Se maneja otro modelo de CNN para definir la dirección del pez como un problema de clasificación (se está clasificando la dirección hacia donde apunta la cabeza del pez).
+    \item Alineamiento: Se rota la imagen para que el pez mantenga una dirección horizontal y mirando hacia la derecha.
+    \item Predicción: Se aplica otro modelo de CNN para la clasificación de la imagen obtenida.
+\end{itemize}
+Hay varios aspectos positivos en este trabajo. El primero es que nos da detalle acerca de todo 
+el procedimiento que se necesitó para realizar la implementación de su modelo. Segundo, combinan 
+muchas técnicas y modelos para hacer más robusta su propuesta. Por último, obtuvieron un resultado 
+que no solo clasificaba al pez como tal, sino que utilizaba características del entorno y de los 
+objetos cercanos para poder hacer su labor de clasificación. \\
+
+Por otra parte, considero que la estimación de la pose y el alineamiento son pasos que no eran 
+necesarios en este \textit{pipeline} ya que las CNN's del estado del arte suelen ser resistentes 
+a este tipo de problemas. Esto podría haber tenido influencia en el costo computacional del mismo, 
+haciéndolo más lento y podría haber tenido una mejor precisión sin ello. \\
+
+Dentro de la problemática de localización de fauna marina, Suxia Cui, \textit{et al}. \cite{Cui2020} 
+desarrollaron un modelo para localizar y clasificar los peces dentro del agua a través de un 
+\textit{Autonomous Underwater Vehicle (AUV)}. El modelo consistió en 24 capas convolusionales, a las 
+cuales les siguen dos capas \textit{full conected}. Ellos se inspiraron en la arquitectura del modelo 
+YOLO para poder realizar la localización de los peces.\\
+
+Al igual que el trabajo anterior, uno de los puntos mas favorables de este es que documenta tanto el 
+procedimiento como los métodos utilizados, además de evidenciar unos buenos resultados para la localización 
+y clasificación de múltiples peces dentro de una imagen dentro del océano, el cual ya es de por sí un gran 
+desafío. Un problema que suele ocurrir con este tipo de modelos es la falta de imágenes etiquetada para el 
+entrenamiento de los modelos, haciendo inviable la creación de este tipo de modelos en casos reales.\\
+
+Dentro del área de Visión Computacional (VC) se encuentra el trabajo de Mejía y Rosales 
+\cite{20.500.12724/11174}, quienes son los únicos autores que han investigado sobre el uso 
+de técnicas de DL para la clasificación de la fauna marina peruana por el momento. Ellos se 
+basaron en el documento de Suxia Cui,\textit{et al}. para su trabajo. Si bien desarrollaron como 
+solución final un modelo de DL para la clasificación, este era retro-alimentado a través de 
+varios algoritmos de visión computacional.\\
+
+Entre estos algoritmos de visión se encuentran los algoritmos SURF/SIFT, el cual se encarga de obtener la 
+silueta de un pez utilizando diferencias gaussianas de la posición-escala de cada pixel. Una vez obtenida 
+la silueta, se procede eliminar el \textit{background} y se identifican los bordes del pez, siendo este 
+resultado analizado y después usado para el entrenamiento del modelo. Con este, lograron obtener un 80\% 
+de precisión en la etapa de testeo.\\
+
+El mayor aporte de este trabajo ha sido la experimentación de nuevas entradas para las CNN's a través de un 
+pre-procesamiento, queriendo mejorar la precisión del modelo final. Aún así, pareciera que el valor de precisión 
+obtenido podría tener un \textit{overfit} debido a que no muestra ejemplos de las imágenes utilizadas, el número de 
+ellas y a la alta precisión final. Por otra parte, las CNN's fueron diseñadas para que las imágenes sean pasadas 
+enteramente como entradas sin tener ese procesamiento inicial.\\
+
+Como se pudo ver a lo largo de este capítulo, los algoritmos de detección y clasificación de 
+imágenes han ido evolucionando, lo cual llevó a diferentes investigadores a utilizar algoritmos de ML y DL para estas tareas. En el 
+presente capítulo se presentaron algunas de las investigaciones del estado del arte enfocadas en modelos de CNN y 
+YOLO para la detección y clasificación de imágenes en diferentes \textit{datasets}. Dentro de ellas, se pudo ver 
+diferentes \textit{pipelines} que lograron obtener una precisión muy elevada para problemas complejos, por lo cual el 
+presente trabajo planea seguir con esa línea de investigación y proponer un nuevo \textit{pipeline} para mejorar la detección y 
+clasificación de peces dentro de la fauna marina peruana.   
